@@ -1274,3 +1274,18 @@ function renderSettings() {
 
 
 
+
+// Smart Navbar Logic
+let lastScrollTop = 0;
+window.addEventListener('scroll', function() {
+  const nav = document.querySelector('.landing-header');
+  if (!nav || window.getComputedStyle(nav).display === 'none' || document.getElementById('appView').innerHTML.trim() !== '') return;
+  
+  let scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+  if (scrollTop > lastScrollTop && scrollTop > 80) {
+    nav.classList.add('hidden-nav');
+  } else {
+    nav.classList.remove('hidden-nav');
+  }
+  lastScrollTop = scrollTop <= 0 ? 0 : scrollTop; 
+}, false);
