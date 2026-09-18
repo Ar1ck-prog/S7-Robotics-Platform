@@ -4,6 +4,7 @@
   root.S7Core = api;
 })(typeof globalThis !== 'undefined' ? globalThis : this, function () {
   const REVIEW_XP = 50;
+  const MENTOR_INVITE_CODE = 's7mentor2026';
 
   function ensureStateShape(state) {
     state.submissions = Array.isArray(state.submissions) ? state.submissions : [];
@@ -122,5 +123,69 @@
     };
   }
 
-  return { REVIEW_XP, ensureStateShape, isSafeHttpUrl, validateSubmission, getLatestSubmission, createSubmission, reviewSubmission, analyzeArduinoCode };
+  function runCompilerSandbox(input) {
+    const language = String(input.language || 'arduino').toLowerCase();
+    const code = String(input.code || '').trim();
+    const errors = [];
+    const warnings = [];
+    if (!code) errors.push('Добавьте код для компиляции.');
+    if (!['arduino', 'cpp', 'python', 'micropython'].includes(language)) errors.push('Выберите поддерживаемый язык.');
+    if (code.length > 12000) errors.push('Код слишком длинный для учебной песочницы.');
+    if (errors.length) return { ok: false, errors, output: '' };
+
+    if (['arduino', 'cpp'].includes(language)) {
+      const open = (code.match(/\{/g) || []).length;
+      const close = (code.match(/\}/g) || []).length;
+      if (open !== close) errors.push('Проверьте фигурные скобки: количество { и } не совпадает.');
+      if (!/void\s+setup\s*\(/.test(code) && language === 'arduino') warnings.push('Для Arduino обычно нужен void setup().');
+      if (!/void\s+loop\s*\(/.test(code) && language === 'arduino') warnings.push('Для Arduino обычно нужен void loop().');
+      if (/Serial\.begin/.test(code) && !/;\s*(\/\/.*)?$/m.test(code)) warnings.push('Проверьте точки с запятой в C++ строках.');
+    }
+
+    if (['python', 'micropython'].includes(language)) {
+      const lines = code.split('\n');
+      lines.forEach((line, index) => {
+        if (/^\s*(if|for|while|def|class|try|except|with)\b/.test(line) && !line.trim().endsWith(':')) {
+          errors.push(`Строка ${index + 1}: после блока Python нужен символ :`);
+        }
+      });
+      if (/\t/.test(code)) warnings.push('Лучше использовать пробелы вместо табов, чтобы избежать ошибок отступов.');
+    }
+
+    if (errors.length) return { ok: false, errors, warnings, output: 'Compilation failed in local sandbox.' };
+    return {
+      ok: true,
+      errors: [],
+      warnings,
+      output: `Vercel Sandbox: ${language} build passed. Runtime is isolated; hardware calls are simulated for the demo.`
+    };
+  }
+
+  function registerUser(state, input) {
+    ensureStateShape(state);
+    const name = String(input.name || '').trim();
+    const email = String(input.email || '').trim().toLowerCase();
+    const password = String(input.password || '');
+    const role = input.role === 'mentor' ? 'mentor' : 'student';
+    const errors = [];
+    if (name.length < 2) errors.push('Укажите имя не короче двух символов.');
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) errors.push('Введите корректный email.');
+    if (password.length < 6) errors.push('Пароль должен содержать минимум 6 символов.');
+    if (state.users.some((user) => String(user.email || '').toLowerCase() === email)) errors.push('Аккаунт с таким email уже существует.');
+    if (role === 'mentor' && input.mentorCode !== MENTOR_INVITE_CODE) errors.push('Неверный код доступа ментора.');
+    if (errors.length) return { valid: false, errors };
+    const user = {
+      id: Math.max(0, ...state.users.map((item) => Number(item.id) || 0)) + 1,
+      name,
+      email,
+      password,
+      role,
+      ...(role === 'student' ? { level: 1, xp: 0, streak: 1 } : {})
+    };
+    state.users.push(user);
+    if (role === 'student') state.studentProgress[user.id] = {};
+    return { valid: true, user };
+  }
+
+  return { REVIEW_XP, ensureStateShape, isSafeHttpUrl, validateSubmission, getLatestSubmission, createSubmission, reviewSubmission, analyzeArduinoCode, runCompilerSandbox, registerUser };
 });

@@ -1,6 +1,6 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const { createSubmission, reviewSubmission, validateSubmission, analyzeArduinoCode } = require('../core');
+const { createSubmission, reviewSubmission, validateSubmission, analyzeArduinoCode, runCompilerSandbox, registerUser } = require('../core');
 
 function state() {
   return {
@@ -39,4 +39,30 @@ test('local AI mentor detects key ultrasonic sensor concepts', () => {
   const result = analyzeArduinoCode('pinMode(9, OUTPUT); pinMode(10, INPUT); pulseIn(10, HIGH); distance = duration * 0.034 / 2; Serial.begin(9600); Serial.println(distance);');
   assert.equal(result.score, 100);
   assert.deepEqual(result.hints, []);
+});
+
+test('compiler sandbox catches syntax risk without executing hardware code', () => {
+  const arduino = runCompilerSandbox({ language: 'arduino', code: 'void setup() { Serial.begin(9600); }\nvoid loop() { Serial.println(1); }' });
+  assert.equal(arduino.ok, true);
+  const python = runCompilerSandbox({ language: 'python', code: 'if True\n    print("bad")' });
+  assert.equal(python.ok, false);
+  assert.match(python.errors[0], /символ :/);
+});
+
+test('student registration creates a safe default learning profile', () => {
+  const data = state();
+  const result = registerUser(data, { name: 'Новый ученик', email: 'NEW@S7.KZ', password: 'robot123', role: 'student' });
+  assert.equal(result.valid, true);
+  assert.equal(result.user.email, 'new@s7.kz');
+  assert.deepEqual({ level: result.user.level, xp: result.user.xp, streak: result.user.streak }, { level: 1, xp: 0, streak: 1 });
+  assert.deepEqual(data.studentProgress[result.user.id], {});
+});
+
+test('mentor registration requires the exact invite code and unique email', () => {
+  const data = state();
+  assert.equal(registerUser(data, { name: 'Mentor', email: 'mentor2@s7.kz', password: 'secure1', role: 'mentor', mentorCode: 'wrong' }).valid, false);
+  const result = registerUser(data, { name: 'Mentor', email: 'mentor2@s7.kz', password: 'secure1', role: 'mentor', mentorCode: 's7mentor2026' });
+  assert.equal(result.valid, true);
+  assert.equal(result.user.role, 'mentor');
+  assert.equal(registerUser(data, { name: 'Again', email: 'MENTOR2@S7.KZ', password: 'secure1', role: 'student' }).valid, false);
 });
