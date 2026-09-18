@@ -1,9 +1,10 @@
-:root {
+﻿:root {
   --blue-950: #0a192f;
   --blue-850: #112240;
   --blue-700: #1d4ed8;
   --blue-600: #2563eb;
   --blue-500: #3b82f6;
+  --blue-400: #60a5fa;
   --blue-100: #dbeafe;
   --blue-050: #eff6ff;
   --ink: #0f172a;
@@ -1986,5 +1987,7 @@ body.dark-mode .duo-node.active::after {
 
 .landing-header.hidden-nav { transform: translate(-50%, -150%); }
 .landing-hero { padding-top: 120px; }
+
+
 
 
