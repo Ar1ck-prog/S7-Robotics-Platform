@@ -35,6 +35,17 @@ const I18N = {
     ok: 'В норме'
   },
   kk: {
+    'Мой путь инженера': 'Менің инженерлік жолым',
+    'Настройки': 'Баптаулар',
+    'Управляйте настройками вашего профиля и интерфейса.': 'Профиль мен интерфейс баптауларын басқарыңыз.',
+    'Тема оформления': 'Интерфейс тақырыбы',
+    'Темная тема': 'Қараңғы тақырып',
+    'Dark mode': 'Қараңғы тақырып',
+    'Язык интерфейса': 'Интерфейс тілі',
+    'Активности и Уведомления': 'Белсенділік және Хабарландырулар',
+    'Отправлять email о новых уроках': 'Жаңа сабақтар туралы email жіберу',
+    'Показывать уведомления о достижениях (XP)': 'Жетістіктер (XP) туралы хабарландыруларды көрсету',
+    'Скрыть мой профиль из таблицы лидеров': 'Менің профилімді көшбасшылар тақтасынан жасыру',
     navStudentDashboard: 'Басқару панелі',
     navCourses: 'Курстар каталогы',
     navLeaderboard: 'Рейтинг',
@@ -65,6 +76,17 @@ const I18N = {
     ok: 'Жақсы'
   },
   en: {
+    'Мой путь инженера': 'My Engineering Path',
+    'Настройки': 'Settings',
+    'Управляйте настройками вашего профиля и интерфейса.': 'Manage your profile and interface settings.',
+    'Тема оформления': 'Appearance',
+    'Темная тема': 'Dark theme',
+    'Dark mode': 'Dark mode',
+    'Язык интерфейса': 'Interface language',
+    'Активности и Уведомления': 'Activities & Notifications',
+    'Отправлять email о новых уроках': 'Send email about new lessons',
+    'Показывать уведомления о достижениях (XP)': 'Show achievement notifications (XP)',
+    'Скрыть мой профиль из таблицы лидеров': 'Hide my profile from the leaderboard',
     navStudentDashboard: 'Dashboard',
     navCourses: 'Course catalog',
     navLeaderboard: 'Leaderboard',
@@ -98,6 +120,17 @@ const I18N = {
 
 const TEXT_TRANSLATIONS = {
   kk: {
+    'Мой путь инженера': 'Менің инженерлік жолым',
+    'Настройки': 'Баптаулар',
+    'Управляйте настройками вашего профиля и интерфейса.': 'Профиль мен интерфейс баптауларын басқарыңыз.',
+    'Тема оформления': 'Интерфейс тақырыбы',
+    'Темная тема': 'Қараңғы тақырып',
+    'Dark mode': 'Қараңғы тақырып',
+    'Язык интерфейса': 'Интерфейс тілі',
+    'Активности и Уведомления': 'Белсенділік және Хабарландырулар',
+    'Отправлять email о новых уроках': 'Жаңа сабақтар туралы email жіберу',
+    'Показывать уведомления о достижениях (XP)': 'Жетістіктер (XP) туралы хабарландыруларды көрсету',
+    'Скрыть мой профиль из таблицы лидеров': 'Менің профилімді көшбасшылар тақтасынан жасыру',
     'Кабинет ученика': 'Оқушы кабинеті',
     'Обзор': 'Шолу',
     'Старт/Пауза': 'Бастау/Үзіліс',
@@ -131,7 +164,7 @@ const TEXT_TRANSLATIONS = {
     'Видеоинструкция (Сборка)': 'Бейненұсқаулық (құрастыру)',
     'Виртуальная лаборатория Wokwi': 'Wokwi виртуалды зертханасы',
     'Теория и задание': 'Теория және тапсырма',
-    '📌 Ваше задание:': '📌 Сіздің тапсырмаңыз:',
+    ' Ваше задание:': ' Сіздің тапсырмаңыз:',
     'Схема подключения': 'Қосу схемасы',
     'Код (Python / C++)': 'Код (Python / C++)',
     'Компилятор и Vercel Sandbox': 'Компилятор және Vercel Sandbox',
@@ -172,6 +205,17 @@ const TEXT_TRANSLATIONS = {
     'Топ за неделю': 'Апта үздіктері'
   },
   en: {
+    'Мой путь инженера': 'My Engineering Path',
+    'Настройки': 'Settings',
+    'Управляйте настройками вашего профиля и интерфейса.': 'Manage your profile and interface settings.',
+    'Тема оформления': 'Appearance',
+    'Темная тема': 'Dark theme',
+    'Dark mode': 'Dark mode',
+    'Язык интерфейса': 'Interface language',
+    'Активности и Уведомления': 'Activities & Notifications',
+    'Отправлять email о новых уроках': 'Send email about new lessons',
+    'Показывать уведомления о достижениях (XP)': 'Show achievement notifications (XP)',
+    'Скрыть мой профиль из таблицы лидеров': 'Hide my profile from the leaderboard',
     'Кабинет ученика': 'Student dashboard',
     'Обзор': 'Overview',
     'Старт/Пауза': 'Start/Pause',
@@ -205,7 +249,7 @@ const TEXT_TRANSLATIONS = {
     'Видеоинструкция (Сборка)': 'Video guide (Assembly)',
     'Виртуальная лаборатория Wokwi': 'Wokwi virtual lab',
     'Теория и задание': 'Theory and task',
-    '📌 Ваше задание:': '📌 Your task:',
+    ' Ваше задание:': ' Your task:',
     'Схема подключения': 'Wiring diagram',
     'Код (Python / C++)': 'Code (Python / C++)',
     'Компилятор и Vercel Sandbox': 'Compiler and Vercel Sandbox',
@@ -991,7 +1035,7 @@ function renderInteractiveLesson(courseId, lessonNumber) {
         result = Core.runCompilerSandbox({ language, code: compilerCode.value });
       }
       const lines = [
-        result.ok ? '✅ Build passed' : '❌ Build failed',
+        result.ok ? ' Build passed' : ' Build failed',
         result.output,
         ...(result.errors || []).map((error) => `error: ${error}`),
         ...(result.warnings || []).map((warning) => `warning: ${warning}`)
@@ -1209,7 +1253,7 @@ function renderSettings() {
     themeToggle.checked = isDarkTheme;
     themeToggle.onchange = (e) => {
       isDarkTheme = e.target.checked;
-      localStorage.setItem(THEME_KEY, isDarkTheme);
+      localStorage.setItem('s7-dark-theme', isDarkTheme);
       document.body.classList.toggle('dark-mode', isDarkTheme);
     };
   }
@@ -1226,3 +1270,7 @@ function renderSettings() {
     };
   }
 }
+
+
+
+
