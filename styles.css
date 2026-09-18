@@ -1606,4 +1606,28 @@ body.dark-mode .duo-node.active::after {
   background: var(--surface-2);
   color: white;
   border-color: var(--line);
+.status-rejected,
+.review-error {
+  color: #b91c1c;
+  font-weight: 700;
+}
+
+.review-note {
+  display: grid;
+  gap: 6px;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.review-note textarea {
+  width: 100%;
+  resize: vertical;
+}
+
+.submission-code {
+  max-height: 220px;
+  overflow: auto;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
 }

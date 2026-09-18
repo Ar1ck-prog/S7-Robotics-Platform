@@ -1,5 +1,6 @@
-const STORAGE_KEY = 's7-platform-mvp-data-v2';
+const STORAGE_KEY = 's7-platform-mvp-data-v3';
 const SESSION_KEY = 's7-platform-session';
+const Core = window.S7Core;
 
 const NAV_ITEMS = {
   student: [
@@ -89,7 +90,13 @@ let pomodoroState = { active: false, timeLeft: 25 * 60, interval: null };
 function loadData() {
   const saved = localStorage.getItem(STORAGE_KEY);
   if (saved) {
-    state = JSON.parse(saved);
+    try {
+      state = Core.ensureStateShape(JSON.parse(saved));
+    } catch {
+      localStorage.removeItem(STORAGE_KEY);
+      state = JSON.parse(JSON.stringify(INITIAL_DATA));
+      saveData();
+    }
   } else {
     state = JSON.parse(JSON.stringify(INITIAL_DATA));
     saveData();
@@ -169,6 +176,12 @@ function getRank(level) {
 
 function getInitials(name) {
   return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0,2);
+}
+
+function escapeHtml(value) {
+  return String(value ?? '').replace(/[&<>'"]/g, (char) => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;'
+  })[char]);
 }
 
 // --- Screens ---
@@ -489,15 +502,17 @@ function renderInteractiveLesson(courseId, lessonNumber) {
     simCard.hidden = true;
   }
 
-  const existingSub = state.submissions.find(s => s.studentId == currentUser.id && s.courseId == courseId && s.lessonNumber == lessonNumber);
+  document.querySelector('.lesson-layout').hidden = false;
+  const existingSub = Core.getLatestSubmission(state, currentUser.id, Number(courseId), Number(lessonNumber));
   const form = document.getElementById('submitProjectForm');
   const statusLabel = document.getElementById('submissionStatus');
   const btnSubmit = document.getElementById('btnSubmitProject');
 
   if (existingSub) {
-    form.querySelector('[name=codeUrl]').value = existingSub.codeUrl;
+    form.querySelector('[name=codeUrl]').value = existingSub.codeUrl || '';
     const codeElem = form.querySelector('[name=code]');
     if (codeElem) codeElem.value = existingSub.code || '';
+    form.querySelector('[name=description]').value = existingSub.description || '';
     
     if (existingSub.status === 'pending') {
       statusLabel.innerText = 'На проверке ментором...';
@@ -514,13 +529,12 @@ function renderInteractiveLesson(courseId, lessonNumber) {
       nextBtn.style.width = '100%';
       nextBtn.type = 'button';
       nextBtn.onclick = () => {
-        if (state.studentProgress[currentUser.id][courseId] === lessonNumber) {
-          state.studentProgress[currentUser.id][courseId] = lessonNumber + 1;
-          saveData();
-        }
         navigate('interactive-lesson', { courseId, lessonNumber: lessonNumber + 1 });
       };
       form.appendChild(nextBtn);
+    } else if (existingSub.status === 'rejected') {
+      statusLabel.innerText = `Нужна доработка: ${existingSub.feedback}`;
+      statusLabel.className = 'submission-status status-rejected';
     }
   } else {
     statusLabel.innerText = '';
@@ -529,16 +543,19 @@ function renderInteractiveLesson(courseId, lessonNumber) {
   form.onsubmit = (e) => {
     e.preventDefault();
     const fd = new FormData(e.target);
-    const sub = {
-      id: Date.now(),
+    const result = Core.createSubmission(state, {
       studentId: currentUser.id,
-      courseId: courseId,
-      lessonNumber: lessonNumber,
+      courseId: Number(courseId),
+      lessonNumber: Number(lessonNumber),
       codeUrl: fd.get('codeUrl'),
       code: fd.get('code'),
-      status: 'pending'
-    };
-    state.submissions.push(sub);
+      description: fd.get('description')
+    });
+    if (!result.valid) {
+      statusLabel.innerText = result.errors.join(' ');
+      statusLabel.className = 'submission-status status-rejected';
+      return;
+    }
     saveData();
     navigate('interactive-lesson', { courseId, lessonNumber });
   };
@@ -562,48 +579,11 @@ function renderInteractiveLesson(courseId, lessonNumber) {
       precheckRes.innerHTML = "<i>Обращение к AI Ментору...</i>";
       
       if (codeText && codeText.length > 5) {
-        try {
-          const apiKey = "AQ.Ab8RN6KLg7FnEHPdcRBXElQtJbmGlkcbE7Q1FEeQCLFfi3IlXA";
-          const prompt = `Ты - AI Mentor, опытный и поддерживающий наставник по робототехнике.
-Твоя задача — точно и глубоко проверить код ученика.
-Тема урока: "${lesson.title}"
-Задание: "${lesson.task}"
-Код ученика:
-${codeText}
-
-Проанализируй код шаг за шагом:
-1. Оцени выполнение от 0 до 100%.
-2. Найди ВСЕ синтаксические и логические ошибки.
-3. Дай конкретные наставления, как исправить, но НЕ давай готовый код целиком. Учи думать!
-
-Сформируй ответ ТОЛЬКО в виде HTML-кода (без тегов \`\`\`html):
-<div class="ai-report">
-  <div class="ai-score">Оценка: [Твоя оценка]%</div>
-  <div class="ai-feedback"><strong>Анализ:</strong> [Твой детальный разбор ошибок или похвала]</div>
-  <div class="ai-mentor-hint"><strong>${svgs.hint} Наставление:</strong> [Подсказка для улучшения]</div>
-</div>`;
-          
-          const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent?key=${apiKey}`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              contents: [{ parts: [{ text: prompt }] }]
-            })
-          });
-          
-          const data = await response.json();
-          if (data.candidates && data.candidates[0].content.parts[0].text) {
-             let htmlContent = data.candidates[0].content.parts[0].text;
-             htmlContent = htmlContent.replace(/```html/g, '').replace(/```/g, '').trim();
-             precheckRes.innerHTML = htmlContent;
-          } else {
-             precheckRes.innerHTML = `${svgs.error} <strong>AI Mentor:</strong> Ошибка ответа от API.`;
-             console.error("API Response:", data);
-          }
-        } catch (e) {
-          precheckRes.innerHTML = `${svgs.error} <strong>AI Mentor:</strong> Не удалось подключиться к ИИ.`;
-          console.error(e);
-        }
+        const report = Core.analyzeArduinoCode(codeText);
+        const hints = report.hints.length
+          ? `<ul>${report.hints.map((hint) => `<li>${escapeHtml(hint)}</li>`).join('')}</ul>`
+          : '<p>Ключевые части решения на месте. Проверьте показания на разных расстояниях и пограничные случаи.</p>';
+        precheckRes.innerHTML = `<div class="ai-report"><div class="ai-score">Готовность: ${report.score}%</div><div class="ai-feedback"><strong>Проверено:</strong> ${report.passed} из ${report.total} инженерных критериев.</div><div class="ai-mentor-hint"><strong>Подсказки, не готовое решение:</strong>${hints}</div></div>`;
       } else {
         precheckRes.innerHTML = `${svgs.success} <strong>AI Mentor:</strong> Ссылка прикреплена. Ментор посмотрит видео!`;
       }
@@ -642,34 +622,39 @@ function renderMentorDashboard() {
     div.innerHTML = `
       <div style="display:flex; justify-content:space-between; align-items:center;">
         <div>
-          <strong>${student.name}</strong>
-          <small>${course.title} · Урок ${sub.lessonNumber}</small>
+          <strong>${escapeHtml(student?.name || 'Неизвестный ученик')}</strong>
+          <small>${escapeHtml(course?.title || 'Неизвестный курс')} · Урок ${sub.lessonNumber}</small>
         </div>
         <span class="badge pending">Ожидает проверки</span>
       </div>
       <div style="background:var(--surface); padding:12px; border-radius:8px; border:1px solid var(--line);">
-        <p style="margin:0 0 8px; font-size:14px;"><strong>Код:</strong> <a href="${sub.codeUrl}" target="_blank">${sub.codeUrl}</a></p>
-        <p style="margin:0; font-size:14px; color:var(--muted);">${sub.description}</p>
+        ${sub.codeUrl ? `<p style="margin:0 0 8px; font-size:14px;"><strong>Демо:</strong> <a href="${escapeHtml(sub.codeUrl)}" target="_blank" rel="noopener noreferrer">${escapeHtml(sub.codeUrl)}</a></p>` : ''}
+        ${sub.code ? `<pre class="submission-code"><code>${escapeHtml(sub.code)}</code></pre>` : ''}
+        <p style="margin:8px 0 0; font-size:14px; color:var(--muted);">${escapeHtml(sub.description || 'Без описания')}</p>
       </div>
+      <label class="review-note">Обратная связь ученику
+        <textarea class="review-feedback" rows="2" maxlength="500" placeholder="Что получилось и что улучшить"></textarea>
+      </label>
+      <p class="review-error" hidden></p>
       <div style="display:flex; gap:12px; margin-top:8px;">
         <button class="button success compact btn-approve" style="flex:1;">Одобрить (+50 XP)</button>
-        <button class="button ghost compact" style="flex:1;">Отклонить (Доработка)</button>
+        <button class="button ghost compact btn-reject" style="flex:1;">Вернуть на доработку</button>
       </div>
     `;
 
-    div.querySelector('.btn-approve').onclick = () => {
-      sub.status = 'approved';
-      student.xp += 50;
-      if (student.xp >= student.level * 100) {
-        student.xp = student.xp - (student.level * 100);
-        student.level += 1;
-      }
-      if (state.studentProgress[student.id][sub.courseId] === sub.lessonNumber) {
-        state.studentProgress[student.id][sub.courseId] = sub.lessonNumber + 1;
+    const review = (action) => {
+      const result = Core.reviewSubmission(state, sub.id, action, div.querySelector('.review-feedback').value);
+      const error = div.querySelector('.review-error');
+      if (!result.ok) {
+        error.hidden = false;
+        error.innerText = result.error;
+        return;
       }
       saveData();
       renderMentorDashboard();
     };
+    div.querySelector('.btn-approve').onclick = () => review('approve');
+    div.querySelector('.btn-reject').onclick = () => review('reject');
 
     list.appendChild(div);
   });
