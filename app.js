@@ -558,9 +558,9 @@ function setAuthMode(mode) {
 }
 
 function updateMentorCodeVisibility() {
-  const isMentor = document.getElementById('registerRole').value === 'mentor';
-  document.getElementById('mentorCodeField').hidden = !isMentor;
-  document.querySelector('#mentorCodeField input').required = isMentor;
+  const isStudent = document.getElementById('registerRole').value === 'student';
+  document.getElementById('mentorCodeField').hidden = !isStudent;
+  document.querySelector('#mentorCodeField input').required = false; // Code is optional for students
 }
 
 function showAuth(mode = 'login', role = 'student') {
@@ -633,7 +633,42 @@ document.getElementById('registerForm').addEventListener('submit', (e) => {
   localStorage.setItem(SESSION_KEY, currentUser.id);
   e.target.reset();
   document.getElementById('authError').innerText = '';
-  showAppShell();
+  
+  const modal = document.getElementById('groupModal');
+  const title = document.getElementById('groupModalTitle');
+  const desc = document.getElementById('groupModalDesc');
+  const input = document.getElementById('groupInput');
+  const btn = document.getElementById('btnGroupAction');
+  const codeDisplay = document.getElementById('groupCodeDisplay');
+  
+  if (currentUser.role === 'mentor') {
+    modal.style.display = 'flex';
+    codeDisplay.style.display = 'none';
+    input.style.display = 'block';
+    input.value = '';
+    
+    title.textContent = 'Создайте группу';
+    desc.textContent = 'Введите название группы для ваших учеников.';
+    input.placeholder = 'Название группы';
+    btn.textContent = 'Создать';
+    
+    btn.onclick = () => {
+      if (btn.textContent === 'Создать') {
+        if (!input.value) return;
+        const code = 'S7-' + Math.random().toString(36).substring(2, 6).toUpperCase();
+        input.style.display = 'none';
+        codeDisplay.style.display = 'block';
+        codeDisplay.textContent = code;
+        desc.textContent = 'Ваш код группы! Отправьте его ученикам:';
+        btn.textContent = 'Войти в панель';
+      } else {
+        modal.style.display = 'none';
+        showAppShell();
+      }
+    };
+  } else {
+    showAppShell();
+  }
 });
 
 document.getElementById('logoutButton').addEventListener('click', () => {
@@ -1289,3 +1324,4 @@ window.addEventListener('scroll', function() {
   }
   lastScrollTop = scrollTop <= 0 ? 0 : scrollTop; 
 }, false);
+

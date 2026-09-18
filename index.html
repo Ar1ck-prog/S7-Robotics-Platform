@@ -1116,8 +1116,22 @@
     <script src="config.js"></script>
     <script src="core.js"></script>
     <script src="app.js"></script>
-  </body>
+    <!-- Group Modal -->
+  <div class="modal-overlay" id="groupModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:9999; align-items:center; justify-content:center;">
+    <div class="modal-content glass-panel" style="padding: 32px; border-radius: 24px; max-width: 400px; width: 100%; text-align: center;">
+      <h2 id="groupModalTitle" style="margin-bottom: 16px;">Создайте группу</h2>
+      <p id="groupModalDesc" style="color: var(--text-secondary); margin-bottom: 24px;">Введите название группы для ваших учеников.</p>
+      
+      <input type="text" id="groupInput" class="input" placeholder="Название группы" style="width: 100%; margin-bottom: 24px;" />
+      
+      <div id="groupCodeDisplay" style="display:none; background: var(--bg-secondary); padding: 16px; border-radius: 12px; font-size: 24px; font-weight: bold; letter-spacing: 2px; margin-bottom: 24px;"></div>
+      
+      <button class="button primary" id="btnGroupAction" style="width: 100%;">Создать</button>
+    </div>
+  </div>
+</body>
 </html>
+
 
 
 

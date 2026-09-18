@@ -1969,5 +1969,6 @@ body.dark-mode .duo-node.active::after {
 }
 
 .landing-header.hidden-nav { transform: translateY(-100%); }
-body { padding-top: 90px; } /* Prevent overlap */
+.landing-hero { padding-top: 120px; }
+
 
