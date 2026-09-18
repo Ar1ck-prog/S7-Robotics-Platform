@@ -30,7 +30,14 @@
           <a href="#courses">Направления</a>
           <a href="#faq">FAQ</a>
         </div>
-        <button class="button primary" id="btnGoAuth">Войти в LMS</button>
+        <div style="display:flex; align-items:center; gap:12px;">
+          <select id="landingLangSelect" class="input" style="padding: 6px 12px; height: auto;">
+            <option value="ru">🇷🇺 RU</option>
+            <option value="en">🇬🇧 EN</option>
+            <option value="kk">🇰🇿 KZ</option>
+          </select>
+          <button class="button primary" id="btnGoAuth">Войти в LMS</button>
+        </div>
       </header>
       
       <!-- Hero Section -->
@@ -857,13 +864,259 @@
           <article class="card">
             <div class="card-header"><h3>Быстрые шаблоны фидбека</h3></div>
             <div class="card-body mentor-template-list" id="mentorFeedbackTemplates"></div>
+              <!-- Wokwi iframe will be injected here -->
+              <div id="lessonSimulator" style="width:100%; height:450px; background:var(--surface-2);"></div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header"><h3>Теория и задание</h3></div>
+            <div class="card-body">
+              <div id="lessonTheory"></div>
+              <div class="task-box">
+                <strong>📌 Ваше задание:</strong>
+                <div id="lessonTask"></div>
+              </div>
+            </div>
+          </div>
+          <div class="card" id="lessonSchemaCard">
+            <div class="card-header"><h3>Схема подключения</h3></div>
+            <div class="card-body" id="lessonSchema"></div>
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <h3>Код (Python / C++)</h3>
+            </div>
+            <div class="card-body">
+              <pre><code id="lessonCode"></code></pre>
+            </div>
+          </div>
+          <div class="card compiler-card">
+            <div class="card-header">
+              <div>
+                <h3>Компилятор и Vercel Sandbox</h3>
+                <small>Проверка синтаксиса без выполнения проекта вместо ученика</small>
+              </div>
+              <span class="badge active">Arduino / C++ / Python</span>
+            </div>
+            <div class="card-body compiler-grid">
+              <div class="compiler-editor">
+                <label class="compiler-language">
+                  Язык
+                  <select id="compilerLanguage">
+                    <option value="arduino">Arduino C++</option>
+                    <option value="cpp">C++</option>
+                    <option value="python">Python</option>
+                    <option value="micropython">MicroPython</option>
+                  </select>
+                </label>
+                <textarea id="compilerCode" rows="12" spellcheck="false" placeholder="Вставьте код для проверки..."></textarea>
+                <div class="compiler-actions">
+                  <button class="button primary compact" type="button" id="btnRunCompiler">Запустить компиляцию</button>
+                  <button class="button secondary compact" type="button" id="btnLoadLessonCode">Взять код урока</button>
+                </div>
+              </div>
+              <div class="compiler-output-panel">
+                <div class="sandbox-badge">Vercel Sandbox API</div>
+                <p>В production код уходит в изолированную Vercel Sandbox function: контейнер без доступа к файлам ученика, с лимитом времени и памяти.</p>
+                <pre id="compilerOutput">Ожидаю код...</pre>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="lesson-sidebar">
+          <div class="card">
+            <div class="card-header"><h3>Сдача проекта</h3></div>
+            <div class="card-body">
+              <form id="submitProjectForm" class="auth-form">
+                <label>
+                  Ссылка на видео работы
+                  <input name="codeUrl" placeholder="https://youtube.com/..." id="inputCodeUrl" />
+                </label>
+                <label>
+                  Ваш код
+                  <textarea name="code" id="inputCode" rows="6" placeholder="Вставьте ваш написанный код сюда..."></textarea>
+                </label>
+                <label>
+                  Что получилось и что было сложно
+                  <textarea name="description" id="inputDescription" rows="3" maxlength="500" placeholder="Коротко опишите результат эксперимента..."></textarea>
+                </label>
+                <!-- Feature 5: AI Pre-check -->
+                <button class="button ai-button compact mb-3" type="button" id="btnAiPrecheck" style="width: 100%;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16" style="margin-right:8px;"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>AI Проверка кода перед сдачей</button>
+                <div id="aiPrecheckResult" class="ai-hint mb-3" hidden></div>
+                
+                <button class="button primary" type="submit" id="btnSubmitProject" style="width: 100%;">Отправить ментору</button>
+                <p id="submissionStatus" class="submission-status"></p>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </template>
+
+
+
+    <!-- Template: Wiki (New Feature) -->
+    <template id="view-wiki">
+      <div class="card">
+        <div class="card-header">
+          <h3>Справочник инженера (Wiki)</h3>
+        </div>
+        <div class="card-body">
+          <div class="wiki-grid">
+            <div class="feature-card">
+              <h3>Arduino UNO Распиновка</h3>
+              <p>Цифровые пины: 0-13<br>Аналоговые пины: A0-A5<br>Питание: 5V, 3.3V, GND</p>
+            </div>
+            <div class="feature-card">
+              <h3>Синтаксис Python (Списки)</h3>
+              <p><code>arr = [1, 2, 3]</code><br><code>arr.append(4)</code><br><code>for x in arr: print(x)</code></p>
+            </div>
+            <div class="feature-card">
+              <h3>Закон Ома</h3>
+              <p>I = U / R<br>Ток равен напряжению, деленному на сопротивление. Не забывайте резисторы для светодиодов (220 Ом)!</p>
+            </div>
+            <div class="feature-card">
+              <h3>LEGO SPIKE Моторы</h3>
+              <p><code>from spike import MotorPair</code><br><code>pair = MotorPair('A', 'B')</code><br><code>pair.move(10, 'cm')</code></p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </template>
+
+    <!-- Template: Leaderboard -->
+    <template id="view-leaderboard">
+      <article class="card">
+        <div class="card-header">
+          <h3>Рейтинг учеников</h3>
+          <span class="badge active">Топ за неделю</span>
+        </div>
+        <div class="card-body list leaderboard-list" id="leaderboardList">
+          <!-- Rendered in JS -->
+        </div>
+      </article>
+    </template>
+
+    <!-- Template: Mentor Dashboard -->
+    <template id="view-mentor-dashboard">
+      <div class="stats-grid">
+        <article class="card stat gamified-stat">
+          <div class="stat-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="24" height="24" class="anim-bounce"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"></polyline><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"></path></svg>
+          </div>
+          <div>
+            <span>Работ на проверку</span>
+            <strong id="mentorPendingCount">0</strong>
+            <small>Требуют внимания</small>
+          </div>
+        </article>
+        <article class="card stat gamified-stat">
+          <div class="stat-icon">👥</div>
+          <div><span>Ученики</span><strong id="mentorStudentsCount">0</strong><small>Активные аккаунты</small></div>
+        </article>
+        <article class="card stat gamified-stat">
+          <div class="stat-icon">✓</div>
+          <div><span>Принято проектов</span><strong id="mentorApprovedCount">0</strong><small>За всё время</small></div>
+        </article>
+      </div>
+      <div class="mentor-command-center">
+        <article class="mentor-command-card">
+          <span>Средний SLA проверки</span>
+          <strong id="mentorSlaMetric">18 мин</strong>
+          <small>Цель: дать фидбек в течение урока</small>
+        </article>
+        <article class="mentor-command-card">
+          <span>Ученики в зоне риска</span>
+          <strong id="mentorRiskMetric">0</strong>
+          <small>Мало прогресса или нет сдач</small>
+        </article>
+        <article class="mentor-command-card">
+          <span>Качество фидбека</span>
+          <strong>92%</strong>
+          <small>Есть конкретная подсказка и следующий шаг</small>
+        </article>
+      </div>
+      <div class="mentor-grid">
+        <article class="card">
+          <div class="card-header">
+            <h3>Проекты на проверку</h3>
+            <span class="badge active">Приоритет по очереди</span>
+          </div>
+          <div class="card-body list" id="mentorSubmissionsList">
+            <!-- Rendered in JS -->
+          </div>
+        </article>
+        <div class="mentor-side-stack">
+          <article class="card">
+            <div class="card-header"><h3>Прогресс учеников</h3></div>
+            <div class="card-body list" id="mentorStudentsList"></div>
+          </article>
+          <article class="card">
+            <div class="card-header"><h3>Группы и нагрузка</h3></div>
+            <div class="card-body" id="mentorGroupsList"></div>
+          </article>
+          <article class="card">
+            <div class="card-header"><h3>Быстрые шаблоны фидбека</h3></div>
+            <div class="card-body mentor-template-list" id="mentorFeedbackTemplates"></div>
           </article>
         </div>
       </div>
     </template>
+
+    <!-- Settings View -->
+    <template id="view-settings">
+      <div class="content-header">
+        <h2 id="settingsTitle">Настройки</h2>
+        <p class="muted" id="settingsDesc">Управляйте настройками вашего профиля и интерфейса.</p>
+      </div>
+      <div class="settings-grid" style="display:grid; gap:24px; max-width:800px;">
+        
+        <div class="card">
+          <div class="card-header">
+            <h3 id="setThemeTitle">Тема оформления</h3>
+          </div>
+          <div class="card-body">
+            <label style="display:flex; align-items:center; gap:12px; cursor:pointer;">
+              <input type="checkbox" id="themeToggleCheckbox" style="width:20px; height:20px;">
+              <span id="setThemeLabel">Темная тема</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h3 id="setLangTitle">Язык интерфейса</h3>
+          </div>
+          <div class="card-body">
+            <select id="appLangSelect" class="input" style="width:100%; max-width:300px;">
+              <option value="ru">Русский</option>
+              <option value="en">English</option>
+              <option value="kk">Қазақша</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h3 id="setActivityTitle">Активности и Уведомления</h3>
+          </div>
+          <div class="card-body" style="display:flex; flex-direction:column; gap:16px;">
+            <label style="display:flex; align-items:center; gap:12px; cursor:pointer;">
+              <input type="checkbox" checked style="width:20px; height:20px;">
+              <span id="setAct1">Отправлять email о новых уроках</span>
+            </label>
+            <label style="display:flex; align-items:center; gap:12px; cursor:pointer;">
+              <input type="checkbox" checked style="width:20px; height:20px;">
+              <span id="setAct2">Показывать уведомления о достижениях (XP)</span>
+            </label>
+            <label style="display:flex; align-items:center; gap:12px; cursor:pointer;">
+              <input type="checkbox" style="width:20px; height:20px;">
 
     <script src="config.js"></script>
     <script src="core.js"></script>
     <script src="app.js"></script>
   </body>
 </html>
+
+

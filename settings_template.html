@@ -1,0 +1,55 @@
+﻿    <!-- Settings View -->
+    <template id="view-settings">
+      <div class="content-header">
+        <h2 id="settingsTitle">Настройки</h2>
+        <p class="muted" id="settingsDesc">Управляйте настройками вашего профиля и интерфейса.</p>
+      </div>
+      <div class="settings-grid" style="display:grid; gap:24px; max-width:800px;">
+        
+        <div class="card">
+          <div class="card-header">
+            <h3 id="setThemeTitle">Тема оформления</h3>
+          </div>
+          <div class="card-body">
+            <label style="display:flex; align-items:center; gap:12px; cursor:pointer;">
+              <input type="checkbox" id="themeToggleCheckbox" style="width:20px; height:20px;">
+              <span id="setThemeLabel">Темная тема</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h3 id="setLangTitle">Язык интерфейса</h3>
+          </div>
+          <div class="card-body">
+            <select id="appLangSelect" class="input" style="width:100%; max-width:300px;">
+              <option value="ru">Русский</option>
+              <option value="en">English</option>
+              <option value="kk">Қазақша</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h3 id="setActivityTitle">Активности и Уведомления</h3>
+          </div>
+          <div class="card-body" style="display:flex; flex-direction:column; gap:16px;">
+            <label style="display:flex; align-items:center; gap:12px; cursor:pointer;">
+              <input type="checkbox" checked style="width:20px; height:20px;">
+              <span id="setAct1">Отправлять email о новых уроках</span>
+            </label>
+            <label style="display:flex; align-items:center; gap:12px; cursor:pointer;">
+              <input type="checkbox" checked style="width:20px; height:20px;">
+              <span id="setAct2">Показывать уведомления о достижениях (XP)</span>
+            </label>
+            <label style="display:flex; align-items:center; gap:12px; cursor:pointer;">
+              <input type="checkbox" style="width:20px; height:20px;">
+              <span id="setAct3">Скрыть мой профиль из таблицы лидеров</span>
+            </label>
+          </div>
+        </div>
+
+      </div>
+    </template>
