@@ -699,15 +699,15 @@ function setAuthMode(mode) {
   document.getElementById('registerForm').hidden = !isRegister;
   document.getElementById('btnLoginMode').classList.toggle('active', !isRegister);
   document.getElementById('btnRegisterMode').classList.toggle('active', isRegister);
-  document.getElementById('authSubtitle').innerText = isRegister ? 'Новый аккаунт' : 'Вход в LMS';
+  document.getElementById('authSubtitle').innerText = isRegister ? 'Новый аккаунт' : 'Вход';
   document.getElementById('authError').innerText = '';
   translateStatic(document.getElementById('authScreen'));
 }
 
 function updateMentorCodeVisibility() {
-  const isStudent = document.getElementById('registerRole').value === 'student';
-  document.getElementById('mentorCodeField').hidden = !isStudent;
-  document.querySelector('#mentorCodeField input').required = false; // Code is optional for students
+  const isMentor = document.getElementById('registerRole').value === 'mentor';
+  document.getElementById('mentorCodeField').hidden = !isMentor;
+  document.querySelector('#mentorCodeField input').required = isMentor;
 }
 
 function showAuth(mode = 'login', role = 'student') {
@@ -814,7 +814,20 @@ document.getElementById('registerForm').addEventListener('submit', (e) => {
       }
     };
   } else {
-    showAppShell();
+    modal.style.display = 'flex';
+    codeDisplay.style.display = 'none';
+    input.style.display = 'block';
+    input.value = '';
+    
+    title.textContent = 'Присоединиться к группе';
+    desc.textContent = 'Введите код, который вам дал ментор (опционально).';
+    input.placeholder = 'Например: S7-ABCD';
+    btn.textContent = 'Войти в панель';
+    
+    btn.onclick = () => {
+      modal.style.display = 'none';
+      showAppShell();
+    };
   }
 });
 
@@ -1580,4 +1593,6 @@ window.addEventListener('scroll', function() {
   }
   lastScrollTop = scrollTop <= 0 ? 0 : scrollTop; 
 }, false);
+
+
 
