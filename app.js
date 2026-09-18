@@ -563,7 +563,14 @@ function renderInteractiveLesson(courseId, lessonNumber) {
       
       if (codeText && codeText.length > 5) {
         try {
-          const apiKey = "AQ.Ab8RN6KLg7FnEHPdcRBXElQtJbmGlkcbE7Q1FEeQCLFfi3IlXA";
+          const apiKey = typeof CONFIG !== 'undefined' ? CONFIG.GEMINI_API_KEY : '';
+          if (!apiKey) {
+            precheckRes.innerHTML = "<div class='ai-report'><strong>Ошибка:</strong> API ключ не найден. Добавьте его в config.js.</div>";
+            precheckRes.hidden = false;
+            btnPrecheck.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18"><path d="M12 2L2 7l10 5 10-5-10-5z"></path></svg> AI Проверка кода`;
+            btnPrecheck.disabled = false;
+            return;
+          }
           const prompt = `Ты - AI Mentor, опытный и поддерживающий наставник по робототехнике.
 Твоя задача — точно и глубоко проверить код ученика.
 Тема урока: "${lesson.title}"
