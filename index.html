@@ -36,22 +36,33 @@
       <!-- Hero Section -->
       <div class="landing-hero">
         <div class="landing-hero-content">
-          <div class="hero-badge">MVP Версия для Хакатона</div>
-          <h1>Единая цифровая экосистема инженера</h1>
-          <p>Платформа S7 Robotics сопровождает ученика от первого урока до сборки собственного инженерного проекта и победы на международных соревнованиях.</p>
+          <div class="hero-badge">ROBOTICS • LMS • PRODUCT</div>
+          <h1>От первого датчика до собственного робота</h1>
+          <p>Один понятный маршрут для ученика и единый центр управления для ментора: уроки, симуляция, проекты, обратная связь и измеримый прогресс.</p>
           <div class="landing-actions">
-            <button class="button primary large" id="btnStartLearning">Начать обучение</button>
-            <a href="#about" class="button secondary large">Узнать больше</a>
+            <button class="button primary large" id="btnStartLearning">Я ученик</button>
+            <button class="button secondary large" id="btnBecomeMentor">Я ментор</button>
           </div>
+          <div class="hero-proof"><span><strong>5</strong> траекторий</span><span><strong>1</strong> сквозной workflow</span><span><strong>50 XP</strong> за проект</span></div>
         </div>
         <div class="landing-hero-visual">
-          <div class="abstract-robot-container">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" class="anim-float abstract-robot">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" class="anim-pulse"/>
-              <circle cx="12" cy="12" r="3" fill="var(--blue-600)" class="anim-flicker" opacity="0.3" />
-            </svg>
+          <div class="s7-logo-orbit" aria-label="S7 Robotics animated logo">
+            <div class="s7-orbit-ring ring-one"></div>
+            <div class="s7-orbit-ring ring-two"></div>
+            <div class="s7-scan-line"></div>
+            <div class="s7-logo-core">
+              <img src="logo.jpg" alt="S7 Robotics Logo" />
+            </div>
+            <div class="s7-orbit-dot dot-one"></div>
+            <div class="s7-orbit-dot dot-two"></div>
+            <div class="s7-orbit-dot dot-three"></div>
           </div>
         </div>
+      </div>
+
+      <div class="landing-outcome-strip">
+        <strong>Главный сценарий MVP</strong>
+        <span>Arduino course</span><span>→</span><span>Ultrasonic Sensor</span><span>→</span><span>Project Review</span><span>→</span><span>XP + Next Lesson</span>
       </div>
 
       <!-- About / Features -->
@@ -289,8 +300,12 @@
           </div>
           <div>
             <strong>S7 Robotics</strong>
-            <small>Вход в LMS</small>
+            <small id="authSubtitle">Вход в LMS</small>
           </div>
+        </div>
+        <div class="auth-tabs" role="tablist" aria-label="Авторизация">
+          <button class="auth-tab active" type="button" id="btnLoginMode">Вход</button>
+          <button class="auth-tab" type="button" id="btnRegisterMode">Регистрация</button>
         </div>
         <form id="loginForm" class="auth-form">
           <label>
@@ -309,6 +324,28 @@
             <input name="password" type="password" required value="1234" />
           </label>
           <button class="button primary" type="submit">Войти</button>
+        </form>
+        <form id="registerForm" class="auth-form" hidden>
+          <label>Роль
+            <select name="role" id="registerRole">
+              <option value="student">Ученик</option>
+              <option value="mentor">Ментор</option>
+            </select>
+          </label>
+          <label>Имя и фамилия
+            <input name="name" required minlength="2" placeholder="Алихан Ермек" autocomplete="name" />
+          </label>
+          <label>Email
+            <input name="email" type="email" required placeholder="user@s7.kz" autocomplete="email" />
+          </label>
+          <label>Пароль
+            <input name="password" type="password" required minlength="6" placeholder="Минимум 6 символов" autocomplete="new-password" />
+          </label>
+          <label id="mentorCodeField" hidden>Код доступа ментора
+            <input name="mentorCode" type="password" placeholder="Введите код школы" autocomplete="off" />
+            <small>Код выдаёт администратор S7 Robotics.</small>
+          </label>
+          <button class="button primary" type="submit">Создать аккаунт</button>
         </form>
         <p id="authError" class="auth-error" aria-live="polite"></p>
         <button class="button ghost" id="btnBackToLanding" style="width:100%; margin-top: 16px;">Вернуться на главную</button>
@@ -363,6 +400,14 @@
             <span id="globalXp">0</span>
           </div>
         </div>
+        <label class="language-picker" title="Language">
+          <span>🌐</span>
+          <select id="languageSelect">
+            <option value="ru">RU</option>
+            <option value="kk">KZ</option>
+            <option value="en">EN</option>
+          </select>
+        </label>
         
         <!-- Pomodoro Timer -->
         <div class="pomodoro-timer" id="pomodoroTimer">
@@ -644,6 +689,38 @@
               <pre><code id="lessonCode"></code></pre>
             </div>
           </div>
+          <div class="card compiler-card">
+            <div class="card-header">
+              <div>
+                <h3>Компилятор и Vercel Sandbox</h3>
+                <small>Проверка синтаксиса без выполнения проекта вместо ученика</small>
+              </div>
+              <span class="badge active">Arduino / C++ / Python</span>
+            </div>
+            <div class="card-body compiler-grid">
+              <div class="compiler-editor">
+                <label class="compiler-language">
+                  Язык
+                  <select id="compilerLanguage">
+                    <option value="arduino">Arduino C++</option>
+                    <option value="cpp">C++</option>
+                    <option value="python">Python</option>
+                    <option value="micropython">MicroPython</option>
+                  </select>
+                </label>
+                <textarea id="compilerCode" rows="12" spellcheck="false" placeholder="Вставьте код для проверки..."></textarea>
+                <div class="compiler-actions">
+                  <button class="button primary compact" type="button" id="btnRunCompiler">Запустить компиляцию</button>
+                  <button class="button secondary compact" type="button" id="btnLoadLessonCode">Взять код урока</button>
+                </div>
+              </div>
+              <div class="compiler-output-panel">
+                <div class="sandbox-badge">Vercel Sandbox API</div>
+                <p>В production код уходит в изолированную Vercel Sandbox function: контейнер без доступа к файлам ученика, с лимитом времени и памяти.</p>
+                <pre id="compilerOutput">Ожидаю код...</pre>
+              </div>
+            </div>
+          </div>
         </div>
         <div class="lesson-sidebar">
           <div class="card">
@@ -657,6 +734,10 @@
                 <label>
                   Ваш код
                   <textarea name="code" id="inputCode" rows="6" placeholder="Вставьте ваш написанный код сюда..."></textarea>
+                </label>
+                <label>
+                  Что получилось и что было сложно
+                  <textarea name="description" id="inputDescription" rows="3" maxlength="500" placeholder="Коротко опишите результат эксперимента..."></textarea>
                 </label>
                 <!-- Feature 5: AI Pre-check -->
                 <button class="button ai-button compact mb-3" type="button" id="btnAiPrecheck" style="width: 100%;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16" style="margin-right:8px;"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>AI Проверка кода перед сдачей</button>
@@ -728,18 +809,61 @@
             <small>Требуют внимания</small>
           </div>
         </article>
+        <article class="card stat gamified-stat">
+          <div class="stat-icon">👥</div>
+          <div><span>Ученики</span><strong id="mentorStudentsCount">0</strong><small>Активные аккаунты</small></div>
+        </article>
+        <article class="card stat gamified-stat">
+          <div class="stat-icon">✓</div>
+          <div><span>Принято проектов</span><strong id="mentorApprovedCount">0</strong><small>За всё время</small></div>
+        </article>
       </div>
-      <article class="card">
-        <div class="card-header">
-          <h3>Проекты на проверку</h3>
+      <div class="mentor-command-center">
+        <article class="mentor-command-card">
+          <span>Средний SLA проверки</span>
+          <strong id="mentorSlaMetric">18 мин</strong>
+          <small>Цель: дать фидбек в течение урока</small>
+        </article>
+        <article class="mentor-command-card">
+          <span>Ученики в зоне риска</span>
+          <strong id="mentorRiskMetric">0</strong>
+          <small>Мало прогресса или нет сдач</small>
+        </article>
+        <article class="mentor-command-card">
+          <span>Качество фидбека</span>
+          <strong>92%</strong>
+          <small>Есть конкретная подсказка и следующий шаг</small>
+        </article>
+      </div>
+      <div class="mentor-grid">
+        <article class="card">
+          <div class="card-header">
+            <h3>Проекты на проверку</h3>
+            <span class="badge active">Приоритет по очереди</span>
+          </div>
+          <div class="card-body list" id="mentorSubmissionsList">
+            <!-- Rendered in JS -->
+          </div>
+        </article>
+        <div class="mentor-side-stack">
+          <article class="card">
+            <div class="card-header"><h3>Прогресс учеников</h3></div>
+            <div class="card-body list" id="mentorStudentsList"></div>
+          </article>
+          <article class="card">
+            <div class="card-header"><h3>Группы и нагрузка</h3></div>
+            <div class="card-body" id="mentorGroupsList"></div>
+          </article>
+          <article class="card">
+            <div class="card-header"><h3>Быстрые шаблоны фидбека</h3></div>
+            <div class="card-body mentor-template-list" id="mentorFeedbackTemplates"></div>
+          </article>
         </div>
-        <div class="card-body list" id="mentorSubmissionsList">
-          <!-- Rendered in JS -->
-        </div>
-      </article>
+      </div>
     </template>
 
     <script src="config.js"></script>
+    <script src="core.js"></script>
     <script src="app.js"></script>
   </body>
 </html>
