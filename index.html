@@ -355,9 +355,21 @@
             <p class="eyebrow" id="pageEyebrow">Кабинет ученика</p>
             <h1 id="pageTitle">Обзор</h1>
           </div>
-          <div class="topbar-actions">
-            <!-- Feature 1: Pomodoro Timer -->
-            <div class="pomodoro-timer" id="pomodoroTimer">
+          <div class="topbar-actions" style="display:flex; align-items:center; gap:16px;">
+        <!-- Duolingo Stats -->
+        <div class="duo-stats" style="display:flex; gap:16px; font-weight:700; color:var(--ink);">
+          <div style="display:flex; align-items:center; gap:4px; color:#f59e0b;">
+            <svg viewBox="0 0 24 24" fill="currentColor" width="20"><path d="M12 2c0 0-4 4-4 9a4 4 0 0 0 8 0c0-5-4-9-4-9z"></path></svg>
+            <span id="globalStreak">0</span>
+          </div>
+          <div style="display:flex; align-items:center; gap:4px; color:var(--blue-500);">
+            <svg viewBox="0 0 24 24" fill="currentColor" width="20"><path d="M12 2l8 4-8 4-8-4 8-4zm0 8l8 4-8 4-8-4 8-4zm0 8l8 4-8 4-8-4 8-4z"></path></svg>
+            <span id="globalXp">0</span>
+          </div>
+        </div>
+        
+        <!-- Pomodoro Timer -->
+        <div class="pomodoro-timer" id="pomodoroTimer">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
               <span id="timerDisplay">25:00</span>
               <button id="btnTimerToggle" class="icon-button" title="Старт/Пауза"><svg viewBox="0 0 24 24" fill="currentColor" width="12"><polygon points="5 3 19 12 5 21 5 3"/></svg></button>
@@ -589,6 +601,9 @@
         <div>
           <span class="badge active" id="lessonRewardBadge">+50 XP за проект</span>
           <h2 id="lessonTitle">Название урока</h2>
+        </div>
+        <div class="duo-progress-container" style="width:100%; height:16px; background:var(--surface-2); border-radius:8px; overflow:hidden; margin-top:16px;">
+          <div id="lessonProgressBar" style="height:100%; width:0%; background:var(--green); transition:width 0.5s ease-out; border-radius:8px;"></div>
         </div>
       </div>
       <div class="lesson-layout">

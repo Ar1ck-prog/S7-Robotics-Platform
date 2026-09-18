@@ -274,6 +274,8 @@ function navigate(viewId, params = {}) {
   if (viewId === 'leaderboard') renderLeaderboard();
   if (viewId === 'wiki') renderWiki();
   if (viewId === 'profile') renderProfile();
+  
+  updateTopbarStats();
 }
 
 function updateStudentXpUI() {
@@ -307,24 +309,43 @@ function renderStudentDashboard() {
   const activeCourseIds = Object.keys(progress);
   
   if (activeCourseIds.length === 0) {
-    list.innerHTML = '<p class="muted" style="margin:0;">Вы еще не начали ни один курс. Перейдите в каталог!</p>';
+    list.innerHTML = '<p class="muted" style="margin:0;">Вы пока не начали ни один курс. Перейдите в каталог!</p>';
   } else {
-    list.innerHTML = '';
-    activeCourseIds.forEach(cId => {
-      const course = state.courses.find(c => c.id == cId);
-      const currLesson = progress[cId];
-      const div = document.createElement('div');
-      div.className = 'list-row';
-      div.innerHTML = `
-        <div>
-          <strong>${course.title}</strong>
-          <small>Урок ${currLesson} из ${course.totalLessons}</small>
+    // Show only the primary active course as a path
+    const cId = activeCourseIds[0];
+    const course = state.courses.find(c => c.id == cId);
+    const currLesson = progress[cId] || 1;
+    const allLessons = state.lessons[cId] || [];
+    
+    let pathHtml = `<h3 style="text-align:center; margin-bottom: 24px;">${course.title}</h3><div class="duo-path">`;
+    
+    for (let i = 0; i < course.totalLessons; i++) {
+      const lessonNumber = i + 1;
+      const isCompleted = lessonNumber < currLesson;
+      const isActive = lessonNumber === currLesson;
+      const isLocked = lessonNumber > currLesson;
+      
+      let icon = svgs.rocket;
+      if (isCompleted) icon = svgs.check;
+      if (isLocked) icon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>`; // lock
+      
+      let nodeClass = "duo-node";
+      if (isCompleted) nodeClass += " completed";
+      if (isActive) nodeClass += " active";
+      
+      pathHtml += `
+        <div class="duo-node-wrapper">
+          <div class="duo-node-label">Урок ${lessonNumber}</div>
+          <div class="${nodeClass}" onclick="${isLocked ? '' : `navigate('interactive-lesson', { courseId: ${cId}, lessonNumber: ${lessonNumber} })`}" style="${isLocked ? 'opacity:0.5;cursor:not-allowed;' : ''}">
+            ${icon}
+          </div>
         </div>
-        <button class="button secondary compact">Продолжить</button>
       `;
-      div.querySelector('button').onclick = () => navigate('interactive-lesson', { courseId: course.id, lessonNumber: currLesson });
-      list.appendChild(div);
-    });
+    }
+    
+    pathHtml += `</div>`;
+    list.innerHTML = pathHtml;
+    list.classList.remove('list'); // Remove standard list padding
   }
 
   // Render Missions
@@ -441,6 +462,9 @@ function renderInteractiveLesson(courseId, lessonNumber) {
   }
 
   document.getElementById('lessonTitle').innerText = `Урок ${lesson.number}: ${lesson.title}`;
+  const totalLessons = state.courses.find(c => c.id == courseId)?.totalLessons || 1;
+  const progressPercent = Math.round((lessonNumber / totalLessons) * 100);
+  document.getElementById('lessonProgressBar').style.width = `${progressPercent}%`;
   document.getElementById('lessonTheory').innerHTML = lesson.theory;
   document.getElementById('lessonSchema').innerHTML = lesson.schema;
   document.getElementById('lessonCode').innerText = lesson.code;
@@ -729,3 +753,9 @@ function renderProfile() {
 // Start
 document.addEventListener('DOMContentLoaded', initApp);
 
+function updateTopbarStats() {
+  const elStreak = document.getElementById('globalStreak');
+  const elXp = document.getElementById('globalXp');
+  if (elStreak) elStreak.innerText = currentUser.streak;
+  if (elXp) elXp.innerText = currentUser.xp;
+}

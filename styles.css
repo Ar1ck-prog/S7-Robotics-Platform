@@ -938,56 +938,6 @@ h1 {
 }
 
 /* Common UI */
-.button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  min-height: 40px;
-  padding: 0 16px;
-  border: 1px solid transparent;
-  border-radius: 8px;
-  font-weight: 600;
-  font-size: 14px;
-  transition: all 0.2s;
-}
-
-.button:hover {
-  transform: translateY(-1px);
-}
-
-.button:active {
-  transform: translateY(0);
-}
-
-.button.primary {
-  background: linear-gradient(135deg, var(--blue-600), var(--blue-500));
-  color: white;
-  border: none;
-  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
-}
-
-.button.primary:hover {
-  background: linear-gradient(135deg, var(--blue-700), var(--blue-600));
-  box-shadow: 0 6px 16px rgba(37, 99, 235, 0.3);
-  transform: translateY(-1px);
-}
-
-.button.secondary {
-  background: var(--surface);
-  color: var(--blue-700);
-  border: 1px solid var(--blue-200);
-}
-
-body.dark-mode .button.secondary {
-  background: var(--surface-2);
-  border-color: var(--line);
-  color: var(--ink);
-}
-
-.button.secondary:hover {
-  background: var(--blue-050);
-}
 
 .button.ghost {
   background: transparent;
@@ -1439,6 +1389,64 @@ body.dark-mode .status-approved { background: rgba(16, 185, 129, 0.2); color: #6
   border-bottom: none;
   padding-bottom: 0;
 }
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 16px;
+  border: 1px solid transparent;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 14px;
+  transition: all 0.1s;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.button:active {
+  transform: translateY(4px) !important;
+  box-shadow: 0 0 0 transparent !important;
+}
+
+.button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
+.button.primary {
+  background: var(--blue-500);
+  color: white;
+  border: none;
+  box-shadow: 0 4px 0 var(--blue-700);
+}
+
+.button.primary:hover {
+  background: var(--blue-400);
+  transform: translateY(1px);
+  box-shadow: 0 3px 0 var(--blue-700);
+}
+
+.button.secondary {
+  background: var(--surface);
+  color: var(--blue-700);
+  border: 2px solid var(--blue-200);
+  box-shadow: 0 4px 0 var(--blue-200);
+}
+
+body.dark-mode .button.secondary {
+  background: var(--surface-2);
+  border-color: var(--line);
+  color: var(--ink);
+  box-shadow: 0 4px 0 var(--line);
+}
+
+.button.secondary:hover {
+  background: var(--blue-050);
+}
 .avatar {
   border-radius: 50%;
   display: flex;
@@ -1488,4 +1496,77 @@ body.dark-mode .ai-score {
   border-radius: 4px;
   font-size: 14px;
   color: var(--ink);
+}
+.duo-path {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 40px 0;
+  gap: 32px;
+  position: relative;
+}
+.duo-node-wrapper {
+  position: relative;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+.duo-node-wrapper:nth-child(even) {
+  transform: translateX(40px);
+}
+.duo-node-wrapper:nth-child(odd) {
+  transform: translateX(-40px);
+}
+.duo-node {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: var(--surface-2);
+  border: 3px solid var(--blue-200);
+  box-shadow: 0 6px 0 var(--blue-200);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.1s;
+  color: var(--blue-600);
+}
+.duo-node.active {
+  background: var(--blue-500);
+  border-color: var(--blue-500);
+  box-shadow: 0 6px 0 var(--blue-700);
+  color: white;
+}
+.duo-node.completed {
+  background: var(--green);
+  border-color: var(--green);
+  box-shadow: 0 6px 0 var(--green-dark, #059669);
+  color: white;
+}
+.duo-node:active {
+  transform: translateY(6px);
+  box-shadow: 0 0 0 transparent;
+}
+.duo-node-label {
+  position: absolute;
+  top: -24px;
+  background: white;
+  border: 2px solid var(--line);
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 12px;
+  white-space: nowrap;
+  color: var(--ink);
+  opacity: 0;
+  transform: translateY(10px);
+  transition: all 0.2s;
+  pointer-events: none;
+}
+.duo-node-wrapper:hover .duo-node-label {
+  opacity: 1;
+  transform: translateY(0);
+}
+body.dark-mode .duo-node-label {
+  background: var(--surface-2);
 }
