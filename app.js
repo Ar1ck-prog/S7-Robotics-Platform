@@ -1,4 +1,4 @@
-﻿const STORAGE_KEY = 's7-platform-mvp-data-v2';
+const STORAGE_KEY = 's7-platform-mvp-data-v2';
 const SESSION_KEY = 's7-platform-session';
 
 const NAV_ITEMS = {
@@ -517,12 +517,6 @@ function renderInteractiveLesson(courseId, lessonNumber) {
     state.submissions.push(sub);
     saveData();
     navigate('interactive-lesson', { courseId, lessonNumber });
-  };
-
-  document.getElementById('btnAiHint').onclick = () => {
-    const hintArea = document.getElementById('aiHintArea');
-    hintArea.hidden = false;
-    hintArea.innerHTML = "<strong>AI Mentor:</strong> Не забудьте, что пин <code>Trig</code> должен быть выходом (OUTPUT), а <code>Echo</code> — входом (INPUT). Вы используете функцию <code>pulseIn()</code> для измерения времени возврата сигнала. Если есть проблемы с компиляцией, проверьте точки с запятой!";
   };
 
   const btnPrecheck = document.getElementById('btnAiPrecheck');
