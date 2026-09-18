@@ -1099,6 +1099,18 @@ h1 {
   font-variant-numeric: tabular-nums;
 }
 
+.timer-input {
+  width: 54px;
+  min-height: 28px;
+  padding: 2px 6px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface-2);
+  color: var(--ink);
+  font-size: 12px;
+  font-weight: 800;
+}
+
 .pomodoro-timer svg {
   color: var(--red);
 }

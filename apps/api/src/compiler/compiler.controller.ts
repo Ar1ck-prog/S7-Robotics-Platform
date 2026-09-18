@@ -17,6 +17,7 @@ export class CompilerController {
   async run(@Body() dto: CompileDto) {
     let sandbox: Awaited<ReturnType<typeof Sandbox.create>> | null = null;
     try {
+      configureVercelSandboxToken();
       sandbox = await Sandbox.create({
         runtime: 'node22',
         timeout: 60_000,
@@ -45,6 +46,12 @@ export class CompilerController {
     } finally {
       await sandbox?.stop();
     }
+  }
+}
+
+function configureVercelSandboxToken() {
+  if (!process.env.VERCEL_OIDC_TOKEN && process.env.VERCEL_TOKEN) {
+    process.env.VERCEL_OIDC_TOKEN = process.env.VERCEL_TOKEN;
   }
 }
 

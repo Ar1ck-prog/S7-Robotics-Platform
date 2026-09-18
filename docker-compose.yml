@@ -39,6 +39,8 @@ services:
       REDIS_URL: ${REDIS_URL:-redis://redis:6379}
       JWT_SECRET: ${JWT_SECRET:-change_me_for_production}
       MENTOR_INVITE_CODE: ${MENTOR_INVITE_CODE:-s7mentor2026}
+      VERCEL_OIDC_TOKEN: ${VERCEL_OIDC_TOKEN:-}
+      VERCEL_TOKEN: ${VERCEL_TOKEN:-}
     depends_on:
       postgres:
         condition: service_healthy

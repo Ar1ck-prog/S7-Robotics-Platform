@@ -1,6 +1,7 @@
 ﻿const STORAGE_KEY = 's7-platform-mvp-data-v3';
 const SESSION_KEY = 's7-platform-session';
 const LANG_KEY = 's7-platform-lang';
+const TIMER_MINUTES_KEY = 's7-platform-focus-minutes';
 const Core = window.S7Core;
 
 const I18N = {
@@ -346,6 +347,7 @@ const NAV_ITEMS = {
   ],
   mentor: [
     { id: 'mentor-dashboard', labelKey: 'navMentor', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"></polyline><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"></path></svg>' },
+    { id: 'wiki', labelKey: 'navWiki', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>' },
     { id: 'settings', labelKey: 'navSettings', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>' }
   ]
 };
@@ -402,6 +404,120 @@ const INITIAL_DATA = {
   submissions: []
 };
 
+function lesson(number, title, theory, schema, code, task, extra = {}) {
+  return { number, title, theory, schema, code, task, ...extra };
+}
+
+const CURRICULUM = {
+  courses: [
+    { id: 101, title: 'Arduino Robotics', desc: 'Датчики, моторы, C++ и автономные роботы', totalLessons: 10 },
+    { id: 102, title: 'LEGO SPIKE Prime', desc: 'Механика, Python, датчики и командные миссии', totalLessons: 10 },
+    { id: 103, title: 'ESP32 IoT', desc: 'Wi-Fi, датчики, веб-панели и умные устройства', totalLessons: 10 },
+    { id: 104, title: 'Artisan Education Robotics', desc: 'Инженерные задания Artisan Education: прототипирование, дизайн и защита проекта', totalLessons: 10 }
+  ],
+  lessons: {
+    101: [
+      lesson(1, 'Ультразвуковой датчик HC-SR04', 'Датчик измеряет расстояние по времени отражения звукового импульса. Это базовое зрение мобильного робота.', 'VCC -> 5V<br>GND -> GND<br>Trig -> Pin 9<br>Echo -> Pin 10', `long duration;\nint distance;\n\nvoid setup() {\n  pinMode(9, OUTPUT);\n  pinMode(10, INPUT);\n  Serial.begin(9600);\n}\n\nvoid loop() {\n  digitalWrite(9, LOW);\n  delayMicroseconds(2);\n  digitalWrite(9, HIGH);\n  delayMicroseconds(10);\n  digitalWrite(9, LOW);\n  duration = pulseIn(10, HIGH);\n  distance = duration * 0.034 / 2;\n  Serial.println(distance);\n  delay(100);\n}`, 'Соберите схему и добейтесь стабильных измерений на 5, 15 и 30 см. Отправьте код и короткое видео.', { video: 'https://www.youtube.com/embed/tPEE9ZwTmy0', wokwiId: '322233630654874194' }),
+      lesson(2, 'Светофор на Arduino', 'Учимся управлять несколькими LED и задавать временные состояния автомата.', 'Red -> Pin 2<br>Yellow -> Pin 3<br>Green -> Pin 4<br>Каждый LED через 220 Ом на GND', `const int red = 2;\nconst int yellow = 3;\nconst int green = 4;\n\nvoid setup() {\n  pinMode(red, OUTPUT);\n  pinMode(yellow, OUTPUT);\n  pinMode(green, OUTPUT);\n}\n\nvoid loop() {\n  digitalWrite(green, HIGH); delay(3000); digitalWrite(green, LOW);\n  digitalWrite(yellow, HIGH); delay(1000); digitalWrite(yellow, LOW);\n  digitalWrite(red, HIGH); delay(3000); digitalWrite(red, LOW);\n}`, 'Сделайте светофор с режимом ночного мигания жёлтого. Опишите, как меняется алгоритм.'),
+      lesson(3, 'Кнопка и антидребезг', 'Кнопка может давать несколько быстрых срабатываний. Нужен программный антидребезг.', 'Button -> Pin 7 и GND<br>LED -> Pin 13', `const int button = 7;\nconst int led = 13;\nbool ledState = false;\nunsigned long lastClick = 0;\n\nvoid setup() {\n  pinMode(button, INPUT_PULLUP);\n  pinMode(led, OUTPUT);\n}\n\nvoid loop() {\n  if (digitalRead(button) == LOW && millis() - lastClick > 250) {\n    ledState = !ledState;\n    digitalWrite(led, ledState);\n    lastClick = millis();\n  }\n}`, 'Сделайте кнопку, которая переключает LED один раз за нажатие. Покажите в видео, что дребезг не ломает логику.'),
+      lesson(4, 'Сервопривод-сканер', 'Сервопривод позволяет поворачивать датчик и строить простой обзор пространства.', 'Servo signal -> Pin 6<br>Servo VCC -> 5V<br>GND общий', `#include <Servo.h>\nServo scanner;\n\nvoid setup() {\n  scanner.attach(6);\n}\n\nvoid loop() {\n  for (int angle = 20; angle <= 160; angle += 10) {\n    scanner.write(angle);\n    delay(120);\n  }\n}`, 'Поверните сервопривод от 20 до 160 градусов и обратно. Добавьте паузу на крайних положениях.'),
+      lesson(5, 'Драйвер моторов L298N', 'Разбираем управление направлением и скоростью DC-мотора через H-мост.', 'IN1 -> 8<br>IN2 -> 9<br>ENA -> 5 PWM<br>Motor -> OUT1/OUT2', `const int in1 = 8;\nconst int in2 = 9;\nconst int en = 5;\n\nvoid setup() {\n  pinMode(in1, OUTPUT);\n  pinMode(in2, OUTPUT);\n  pinMode(en, OUTPUT);\n}\n\nvoid loop() {\n  digitalWrite(in1, HIGH);\n  digitalWrite(in2, LOW);\n  analogWrite(en, 180);\n  delay(2000);\n}`, 'Запустите мотор вперёд, назад и на 3 скоростях. В отчёте укажите, где нужна общая земля.'),
+      lesson(6, 'Линия на датчиках отражения', 'Робот ищет контраст между чёрной линией и светлым полем.', 'Left sensor -> A0<br>Right sensor -> A1<br>Motors -> L298N', `int leftValue;\nint rightValue;\n\nvoid setup() {\n  Serial.begin(9600);\n}\n\nvoid loop() {\n  leftValue = analogRead(A0);\n  rightValue = analogRead(A1);\n  Serial.print(leftValue);\n  Serial.print(\" \");\n  Serial.println(rightValue);\n  delay(100);\n}`, 'Снимите значения датчиков на белом и чёрном поле. Подберите порог и объясните выбор.'),
+      lesson(7, 'Парковочный радар', 'Комбинируем HC-SR04, buzzer и LED-индикацию расстояния.', 'HC-SR04 -> Pins 9/10<br>Buzzer -> Pin 11<br>LED -> Pin 4', `int buzzer = 11;\n\nvoid setup() {\n  pinMode(buzzer, OUTPUT);\n  Serial.begin(9600);\n}\n\nvoid loop() {\n  int distance = 15;\n  if (distance < 20) tone(buzzer, 1000, 80);\n  delay(distance * 20);\n}`, 'Сделайте звуковой сигнал чаще при приближении объекта. Используйте реальное расстояние из HC-SR04.'),
+      lesson(8, 'LCD-экран I2C', 'Выводим данные датчиков на экран, чтобы робот мог показывать состояние без компьютера.', 'LCD SDA -> A4<br>LCD SCL -> A5<br>VCC -> 5V<br>GND -> GND', `#include <Wire.h>\n#include <LiquidCrystal_I2C.h>\nLiquidCrystal_I2C lcd(0x27, 16, 2);\n\nvoid setup() {\n  lcd.init();\n  lcd.backlight();\n  lcd.print(\"S7 Robotics\");\n}\n\nvoid loop() {}`, 'Выведите на LCD расстояние с ультразвукового датчика и статус SAFE/WARNING.'),
+      lesson(9, 'Мини-робот объезжает препятствие', 'Собираем датчик расстояния и моторы в автономное поведение.', 'HC-SR04 -> 9/10<br>L298N -> 5,8,9 и второй канал', `void forward() {}\nvoid turnRight() {}\nint readDistance() { return 30; }\n\nvoid setup() {}\n\nvoid loop() {\n  if (readDistance() < 15) turnRight();\n  else forward();\n}`, 'Робот должен ехать вперёд и поворачивать, если впереди препятствие ближе 15 см.'),
+      lesson(10, 'Финальный Arduino challenge', 'Проектируем автономного робота с датчиками, логированием и понятным demo.', 'Выберите свою схему: HC-SR04, моторы, кнопка старта, LED-статусы', `// Финальный проект: добавьте функции движения,\n// чтение датчиков и понятную state machine.\nvoid setup() {\n  Serial.begin(9600);\n}\n\nvoid loop() {\n  // TODO: implement robot behavior\n}`, 'Соберите мини-проект: робот стартует по кнопке, объезжает препятствие и показывает статус. Отправьте код, схему и видео.')
+    ],
+    102: [
+      lesson(1, 'Робот-грузоподъёмник', 'Изучаем моторы, захват и базовую автономную миссию LEGO SPIKE.', 'Left motor -> A<br>Right motor -> B<br>Lift motor -> C<br>Distance sensor -> D', `from spike import PrimeHub, MotorPair, Motor\nhub = PrimeHub()\nbase = MotorPair('A', 'B')\nlift = Motor('C')\n\nlift.run_for_degrees(-90, 50)\nbase.move(20, 'cm', 0, 50)\nlift.run_for_degrees(90, 50)`, 'Соберите грузоподъёмник и измените код так, чтобы он останавливался перед грузом по датчику расстояния.'),
+      lesson(2, 'Движение по линии на Python', 'P-регулятор делает движение по линии плавнее обычных if/else.', 'Motors -> A/B<br>Color sensor -> E', `from spike import MotorPair, ColorSensor\nbase = MotorPair('A', 'B')\nsensor = ColorSensor('E')\nTARGET = 50\nKp = 0.8\nwhile True:\n    error = TARGET - sensor.get_reflected_light()\n    base.start(int(error * Kp), 30)`, 'Настройте Kp, чтобы робот проехал линию без резких рывков.'),
+      lesson(3, 'Точный проезд по сантиметрам', 'Учимся калибровать движение: диаметр колёс, скорость, торможение.', 'Motors -> A/B', `from spike import MotorPair\nbase = MotorPair('A', 'B')\nbase.move(30, 'cm', 0, 40)\nbase.move(-10, 'cm', 0, 30)`, 'Робот должен проехать 30 см, вернуться на 10 см и остановиться в отмеченной зоне.'),
+      lesson(4, 'Повороты гироскопом', 'Гироскоп помогает делать стабильные повороты на 90 градусов.', 'Hub gyro + motors A/B', `from spike import PrimeHub, MotorPair\nhub = PrimeHub()\nbase = MotorPair('A', 'B')\nhub.motion_sensor.reset_yaw_angle()\nbase.move_tank(1, 'rotations', left_speed=30, right_speed=-30)`, 'Сделайте серию из четырёх поворотов по 90 градусов и вернитесь лицом в исходное направление.'),
+      lesson(5, 'Сортировка по цвету', 'Цветовой датчик позволяет классифицировать кубики и выбирать действие.', 'Color sensor -> E<br>Grab motor -> C', `from spike import ColorSensor, Motor\nsensor = ColorSensor('E')\narm = Motor('C')\ncolor = sensor.get_color()\nif color == 'red':\n    arm.run_for_degrees(90, 40)`, 'Робот должен распознать минимум 3 цвета и выполнить разные действия для каждого.'),
+      lesson(6, 'Датчик расстояния и стоп-зона', 'Робот должен безопасно подъехать к объекту, не касаясь его.', 'Distance sensor -> D<br>Motors -> A/B', `from spike import DistanceSensor, MotorPair\nsensor = DistanceSensor('D')\nbase = MotorPair('A', 'B')\nwhile sensor.get_distance_cm() > 8:\n    base.start(0, 25)\nbase.stop()`, 'Остановитесь на расстоянии 8-10 см от стены. Запишите 3 попытки и сравните точность.'),
+      lesson(7, 'Манипулятор с ограничениями', 'Проектируем подъёмный механизм и защищаем мотор от перегрузки.', 'Lift motor -> C<br>Force sensor -> F', `from spike import Motor, ForceSensor\nlift = Motor('C')\nforce = ForceSensor('F')\nif force.is_pressed():\n    lift.run_for_degrees(120, 40)`, 'Сделайте механизм, который поднимает груз только после нажатия датчика силы.'),
+      lesson(8, 'Командная миссия: доставка груза', 'Команда делит задачу на движение, захват и финальную парковку.', 'Motors A/B, lift C, sensors D/E', `def drive_to_zone():\n    pass\n\ndef pick_payload():\n    pass\n\ndef park():\n    pass\n\ndrive_to_zone()\npick_payload()\npark()`, 'Разбейте миссию на функции и снимите видео успешной доставки груза в зону.'),
+      lesson(9, 'PID challenge на линии', 'Улучшаем P-регулятор до PID: учитываем прошлую и накопленную ошибку.', 'Color sensor -> E<br>Motors -> A/B', `error_sum = 0\nlast_error = 0\nKp, Ki, Kd = 0.8, 0.0, 0.2\n# Добавьте цикл чтения датчика и расчёт correction`, 'Добавьте D-компоненту и сравните поведение с обычным P-регулятором.'),
+      lesson(10, 'LEGO SPIKE финальный робот', 'Финальный проект: автономная миссия с датчиками, функциями и надёжным demo.', 'Выберите конструкцию и минимум 2 датчика', `from spike import PrimeHub\nhub = PrimeHub()\n\ndef mission():\n    # TODO: команда проектирует алгоритм\n    pass\n\nmission()`, 'Соберите робота для мини-соревнования: старт, миссия, финиш. Отправьте код, описание стратегии и видео.')
+    ],
+    103: [
+      lesson(1, 'ESP32: первый Wi-Fi scan', 'ESP32 умеет работать с Wi-Fi и искать доступные сети.', 'ESP32 DevKit<br>USB cable', `#include <WiFi.h>\n\nvoid setup() {\n  Serial.begin(115200);\n  WiFi.mode(WIFI_STA);\n  int n = WiFi.scanNetworks();\n  Serial.println(n);\n}\n\nvoid loop() {}`, 'Выведите количество сетей и названия первых 5 сетей в Serial Monitor.'),
+      lesson(2, 'Web Server: LED ON/OFF', 'Поднимаем локальную веб-страницу на ESP32 и управляем LED.', 'LED -> GPIO 2<br>Wi-Fi сеть', `#include <WiFi.h>\n#include <WebServer.h>\nWebServer server(80);\n\nvoid setup() {\n  pinMode(2, OUTPUT);\n  server.on(\"/on\", [](){ digitalWrite(2, HIGH); server.send(200, \"text/plain\", \"ON\"); });\n  server.on(\"/off\", [](){ digitalWrite(2, LOW); server.send(200, \"text/plain\", \"OFF\"); });\n  server.begin();\n}\nvoid loop(){ server.handleClient(); }`, 'Сделайте две кнопки на веб-странице для включения и выключения LED.'),
+      lesson(3, 'DHT11/DHT22 dashboard', 'Считываем температуру и влажность и выводим их в веб-интерфейс.', 'DHT signal -> GPIO 4<br>VCC -> 3.3V<br>GND -> GND', `// Подключите библиотеку DHT\nfloat temperature = 24.5;\nfloat humidity = 45.0;\n\nvoid setup(){ Serial.begin(115200); }\nvoid loop(){\n  Serial.println(temperature);\n  delay(1000);\n}`, 'Соберите страницу `/sensor`, где отображаются температура и влажность.'),
+      lesson(4, 'MQTT telemetry', 'MQTT помогает отправлять данные устройства в broker и строить IoT-системы.', 'ESP32 + Wi-Fi + MQTT broker', `// Используйте PubSubClient\nconst char* topic = \"s7/robotics/temperature\";\n\nvoid publishData() {\n  // client.publish(topic, \"25.1\");\n}`, 'Отправьте значение датчика в MQTT topic и покажите скрин/видео получения сообщения.'),
+      lesson(5, 'Telegram/HTTP alert', 'ESP32 может отправлять уведомления при событии.', 'Button -> GPIO 15<br>Wi-Fi', `#include <HTTPClient.h>\n\nvoid sendAlert() {\n  HTTPClient http;\n  http.begin(\"https://example.com/webhook\");\n  http.GET();\n  http.end();\n}`, 'Сделайте alert при нажатии кнопки или превышении порога датчика.'),
+      lesson(6, 'OLED status screen', 'OLED показывает состояние устройства без компьютера.', 'OLED SDA -> GPIO 21<br>SCL -> GPIO 22', `// Adafruit_SSD1306 display(128, 64, &Wire);\nvoid setup() {\n  // display.begin(...);\n}\nvoid loop() {\n  // display sensor status\n}`, 'Выведите IP-адрес, Wi-Fi status и значение датчика на OLED.'),
+      lesson(7, 'BLE маяк', 'Bluetooth Low Energy позволяет ESP32 передавать короткие данные рядом с устройством.', 'ESP32 BLE', `// BLEDevice::init(\"S7-ESP32\");\nvoid setup(){ Serial.begin(115200); }\nvoid loop(){ delay(1000); }`, 'Создайте BLE-имя устройства и найдите его со смартфона. Опишите, где BLE полезнее Wi-Fi.'),
+      lesson(8, 'Servo over Web', 'Соединяем веб-интерфейс и исполнительный механизм.', 'Servo signal -> GPIO 13<br>External 5V for servo', `#include <ESP32Servo.h>\nServo servo;\nvoid setup(){ servo.attach(13); }\nvoid loop(){ servo.write(90); delay(1000); }`, 'Сделайте веб-ручку: URL `/servo?angle=120` поворачивает сервопривод.'),
+      lesson(9, 'ESP32-CAM photo trigger', 'Камера превращает ESP32 в IoT-наблюдение и лабораторный инструмент.', 'ESP32-CAM module<br>FTDI programmer', `// camera_config_t config;\n// esp_camera_init(&config);\nvoid setup(){ Serial.begin(115200); }\nvoid loop(){}`, 'Опишите схему подключения ESP32-CAM и сделайте endpoint для получения фото.'),
+      lesson(10, 'Финальный IoT-проект ESP32', 'Финальный проект объединяет датчики, веб-интерфейс, alert и dashboard.', 'ESP32 + минимум 1 датчик + 1 исполнительный модуль', `void setup() {\n  Serial.begin(115200);\n  // WiFi + server + sensor\n}\nvoid loop() {\n  // handle clients and telemetry\n}`, 'Сделайте IoT-устройство: измерение, веб-панель и уведомление. Отправьте код, схему и demo-видео.')
+    ],
+    104: [
+      lesson(1, 'Artisan Education: дизайн инженерной задачи', 'Начинаем с проблемы, пользователя и критериев успеха. Робот — не игрушка, а решение.', 'Материалы Artisan Education: карточка проблемы, критерии, роли команды', `// Опишите проблему, пользователя и ограничения.\nconst project = \"assistive robot\";`, 'Выберите проблему для робота и заполните карту: пользователь, задача, ограничения, критерии успеха.'),
+      lesson(2, 'Быстрый прототип из картона и LEGO', 'Прототип нужен, чтобы проверить форму и механику до электроники.', 'Картон, LEGO beams, rubber bands, tape', `// Pseudocode:\n// build -> test -> measure -> improve`, 'Соберите физический прототип захвата или платформы. Сделайте 3 фото итераций.'),
+      lesson(3, 'Механизмы: рычаг, передача, захват', 'Понимаем, как усилие и скорость меняются через простые механизмы.', 'Gears, beams, axles, liftarm', `gear_ratio = \"small_to_big\"\nprint(\"More torque, less speed\")`, 'Сравните два передаточных отношения и объясните, где больше скорость, а где сила.'),
+      lesson(4, 'Sensor story: какие данные нужны роботу', 'Выбираем датчики под задачу, а не наоборот.', 'Distance, color, force or light sensor', `sensors = [\"distance\", \"color\"]\nfor sensor in sensors:\n    print(sensor)`, 'Составьте таблицу: действие робота, нужный датчик, возможная ошибка измерения.'),
+      lesson(5, 'Human-centered robot', 'Робот должен быть понятен человеку: сигналы, безопасность, предсказуемость.', 'LED, buzzer/display, safe enclosure', `state = \"ready\"\nif state == \"ready\":\n    print(\"green light\")`, 'Добавьте в проект минимум 2 сигнала состояния: ready, working, error.'),
+      lesson(6, 'Artisan coding: state machine', 'State machine помогает строить надёжные проекты с понятными режимами.', 'Любая платформа: SPIKE, Arduino или ESP32', `state = \"IDLE\"\nif state == \"IDLE\":\n    state = \"RUN\"\nelif state == \"RUN\":\n    state = \"DONE\"`, 'Опишите состояния своего робота и реализуйте переходы между ними в коде.'),
+      lesson(7, 'Тест-план и метрики', 'Инженерный проект оценивается измерениями: точность, время, стабильность.', 'Stopwatch, ruler, test table', `tests = [\"time\", \"accuracy\", \"reliability\"]\nprint(tests)`, 'Проведите минимум 5 тестов и заполните таблицу результатов.'),
+      lesson(8, 'Командная сборка: роли и GitHub', 'Команда работает быстрее, когда роли понятны: механика, код, тесты, питч.', 'Team board, GitHub repo, checklist', `roles = {\"mechanic\": \"build\", \"coder\": \"software\", \"tester\": \"qa\"}`, 'Разделите роли и создайте чеклист задач. Каждый участник фиксирует вклад.'),
+      lesson(9, 'Pitch проекта Artisan', 'Хороший pitch показывает проблему, решение, demo и следующие шаги.', 'Slides or demo board', `pitch = [\"problem\", \"solution\", \"demo\", \"impact\"]\nprint(\" -> \".join(pitch))`, 'Подготовьте 2-минутный pitch: проблема, робот, тесты, что улучшите дальше.'),
+      lesson(10, 'Artisan final expo', 'Финальная защита: работающий прототип, код, тесты и рассказ о пользе.', 'Final robot + demo area + report', `def final_demo():\n    return \"show robot, data, impact\"\nprint(final_demo())`, 'Проведите expo-demo: робот выполняет задачу, команда показывает метрики и отвечает на вопросы.')
+    ]
+  }
+};
+
+function mergeCurriculum(targetState) {
+  targetState.materials = Array.isArray(targetState.materials) ? targetState.materials : [];
+  targetState.courses = targetState.courses || [];
+  CURRICULUM.courses.forEach((course) => {
+    const existing = targetState.courses.find((item) => item.id === course.id);
+    if (existing) Object.assign(existing, course);
+    else targetState.courses.push({ ...course });
+  });
+  targetState.lessons = targetState.lessons || {};
+  Object.entries(CURRICULUM.lessons).forEach(([courseId, lessons]) => {
+    const existingLessons = Array.isArray(targetState.lessons[courseId]) ? targetState.lessons[courseId] : [];
+    const mentorLessons = existingLessons.filter((item) => item.isMentorCreated);
+    targetState.lessons[courseId] = [
+      ...lessons.map((item) => ({ ...item })),
+      ...mentorLessons.map((item, index) => ({ ...item, number: lessons.length + index + 1 }))
+    ];
+    const course = targetState.courses.find((item) => item.id === Number(courseId));
+    if (course) course.totalLessons = targetState.lessons[courseId].length;
+  });
+}
+
+function fillCourseSelect(select) {
+  if (!select) return;
+  select.innerHTML = state.courses
+    .map((course) => `<option value="${course.id}">${escapeHtml(course.title)}</option>`)
+    .join('');
+}
+
+function addLessonToCourse(courseId, input) {
+  const numericCourseId = Number(courseId);
+  const course = state.courses.find((item) => item.id === numericCourseId);
+  if (!course) return { ok: false, error: 'Курс не найден.' };
+  state.lessons[numericCourseId] ||= [];
+  const nextNumber = Math.max(0, ...state.lessons[numericCourseId].map((item) => Number(item.number) || 0)) + 1;
+  const created = lesson(
+    nextNumber,
+    input.title,
+    input.theory || 'Материал добавлен ментором. Изучите вводную часть и выполните задание.',
+    input.schema || 'Компоненты и схема задаются ментором.',
+    input.code || '// Mentor starter code\n',
+    input.task
+  );
+  created.authorId = currentUser.id;
+  created.authorName = currentUser.name;
+  created.createdAt = new Date().toISOString();
+  created.isMentorCreated = true;
+  state.lessons[numericCourseId].push(created);
+  course.totalLessons = state.lessons[numericCourseId].length;
+  return { ok: true, lesson: created, course };
+}
+
 let state = null;
 let currentUser = null;
 let currentView = '';
@@ -421,7 +537,26 @@ const svgs = {
 
 // --- Features State ---
 let isDarkTheme = localStorage.getItem('s7-dark-theme') === 'true';
-let pomodoroState = { active: false, timeLeft: 25 * 60, interval: null };
+let pomodoroState = { active: false, timeLeft: getFocusMinutes() * 60, interval: null };
+
+function getFocusMinutes() {
+  const saved = Number(localStorage.getItem(TIMER_MINUTES_KEY));
+  return Number.isFinite(saved) && saved >= 5 && saved <= 120 ? saved : 25;
+}
+
+function formatTimer(seconds) {
+  const m = Math.floor(seconds / 60).toString().padStart(2, '0');
+  const s = (seconds % 60).toString().padStart(2, '0');
+  return `${m}:${s}`;
+}
+
+function setTimerIdle(minutes = getFocusMinutes()) {
+  pomodoroState.active = false;
+  pomodoroState.timeLeft = minutes * 60;
+  clearInterval(pomodoroState.interval);
+  document.getElementById('timerDisplay').innerText = formatTimer(pomodoroState.timeLeft);
+  document.getElementById('btnTimerToggle').innerHTML = `<svg viewBox="0 0 24 24" fill="currentColor" width="12"><polygon points="5 3 19 12 5 21 5 3"/></svg>`;
+}
 
 // --- Init ---
 function loadData() {
@@ -429,13 +564,17 @@ function loadData() {
   if (saved) {
     try {
       state = Core.ensureStateShape(JSON.parse(saved));
+      mergeCurriculum(state);
+      saveData();
     } catch {
       localStorage.removeItem(STORAGE_KEY);
       state = JSON.parse(JSON.stringify(INITIAL_DATA));
+      mergeCurriculum(state);
       saveData();
     }
   } else {
     state = JSON.parse(JSON.stringify(INITIAL_DATA));
+    mergeCurriculum(state);
     saveData();
   }
 }
@@ -480,7 +619,17 @@ function initApp() {
 
   document.getElementById('btnNotifications').onclick = () => { const dd = document.getElementById('notificationsDropdown'); dd.hidden = !dd.hidden; document.getElementById('notifCount').hidden = true; };
 
-  document.getElementById('btnTimerToggle').onclick = togglePomodoro; document.getElementById('btnTimerReset').onclick = () => { pomodoroState.active = false; pomodoroState.timeLeft = 25 * 60; document.getElementById('timerDisplay').innerText = '25:00'; clearInterval(pomodoroState.interval); document.getElementById('btnTimerToggle').innerHTML = `<svg viewBox="0 0 24 24" fill="currentColor" width="12"><polygon points="5 3 19 12 5 21 5 3"/></svg>`; };
+  const timerMinutes = document.getElementById('timerMinutes');
+  timerMinutes.value = getFocusMinutes();
+  document.getElementById('timerDisplay').innerText = formatTimer(pomodoroState.timeLeft);
+  timerMinutes.onchange = () => {
+    const minutes = Math.min(120, Math.max(5, Number(timerMinutes.value) || 25));
+    timerMinutes.value = minutes;
+    localStorage.setItem(TIMER_MINUTES_KEY, String(minutes));
+    if (!pomodoroState.active) setTimerIdle(minutes);
+  };
+  document.getElementById('btnTimerToggle').onclick = togglePomodoro;
+  document.getElementById('btnTimerReset').onclick = () => setTimerIdle(getFocusMinutes());
 
   const sessionId = localStorage.getItem(SESSION_KEY);
   if (sessionId) {
@@ -510,13 +659,11 @@ function togglePomodoro() {
       if (pomodoroState.timeLeft <= 0) {
         clearInterval(pomodoroState.interval);
         pomodoroState.active = false;
-        pomodoroState.timeLeft = 25 * 60;
+        pomodoroState.timeLeft = getFocusMinutes() * 60;
         alert('Фокус-таймер завершен! Отдохните 5 минут.');
         btn.innerHTML = `<svg viewBox="0 0 24 24" fill="currentColor" width="12"><polygon points="5 3 19 12 5 21 5 3"/></svg>`;
       }
-      const m = Math.floor(pomodoroState.timeLeft / 60).toString().padStart(2, '0');
-      const s = (pomodoroState.timeLeft % 60).toString().padStart(2, '0');
-      display.innerText = `${m}:${s}`;
+      display.innerText = formatTimer(pomodoroState.timeLeft);
     }, 1000);
   }
 }
@@ -1133,6 +1280,60 @@ function renderMentorDashboard() {
     ].map(item => `<button class="mentor-template" type="button">${escapeHtml(item)}</button>`).join('');
   }
 
+  fillCourseSelect(document.getElementById('mentorLessonCourse'));
+  fillCourseSelect(document.getElementById('mentorAssignmentCourse'));
+  const lessonForm = document.getElementById('mentorLessonForm');
+  if (lessonForm) {
+    lessonForm.onsubmit = (event) => {
+      event.preventDefault();
+      const fd = new FormData(lessonForm);
+      const result = addLessonToCourse(fd.get('courseId'), {
+        title: String(fd.get('title') || '').trim(),
+        theory: String(fd.get('theory') || '').trim(),
+        schema: String(fd.get('schema') || '').trim(),
+        code: String(fd.get('code') || '').trim(),
+        task: String(fd.get('task') || '').trim()
+      });
+      const status = document.getElementById('mentorLessonStatus');
+      if (!result.ok) {
+        status.innerText = result.error;
+        status.className = 'submission-status status-rejected';
+        return;
+      }
+      saveData();
+      status.innerText = `Урок ${result.lesson.number} добавлен в курс ${result.course.title}.`;
+      status.className = 'submission-status status-approved';
+      lessonForm.reset();
+      fillCourseSelect(document.getElementById('mentorLessonCourse'));
+    };
+  }
+
+  const assignmentForm = document.getElementById('mentorAssignmentForm');
+  if (assignmentForm) {
+    assignmentForm.onsubmit = (event) => {
+      event.preventDefault();
+      const fd = new FormData(assignmentForm);
+      const result = addLessonToCourse(fd.get('courseId'), {
+        title: String(fd.get('title') || '').trim(),
+        theory: 'Challenge от ментора: изучите критерии, спланируйте решение и сдайте проект через форму отправки.',
+        schema: 'Схема зависит от выбранного решения. Укажите компоненты в описании проекта.',
+        code: '// Challenge starter\n// Напишите решение самостоятельно и проверьте его через Vercel Sandbox.\n',
+        task: String(fd.get('task') || '').trim()
+      });
+      const status = document.getElementById('mentorAssignmentStatus');
+      if (!result.ok) {
+        status.innerText = result.error;
+        status.className = 'submission-status status-rejected';
+        return;
+      }
+      saveData();
+      status.innerText = `Задание опубликовано как урок ${result.lesson.number}.`;
+      status.className = 'submission-status status-approved';
+      assignmentForm.reset();
+      fillCourseSelect(document.getElementById('mentorAssignmentCourse'));
+    };
+  }
+
   const list = document.getElementById('mentorSubmissionsList');
   list.innerHTML = '';
 
@@ -1222,6 +1423,61 @@ function renderLeaderboard() {
 function renderWiki() {
   document.getElementById('pageTitle').innerText = 'Справочник';
   document.getElementById('pageEyebrow').innerText = 'База знаний инженера';
+  state.materials ||= [];
+  const uploadCard = document.getElementById('wikiMaterialUploadCard');
+  if (uploadCard) uploadCard.hidden = currentUser.role !== 'mentor';
+  fillCourseSelect(document.getElementById('wikiMaterialCourse'));
+
+  const list = document.getElementById('wikiMaterialsList');
+  const count = document.getElementById('wikiMaterialsCount');
+  if (count) count.innerText = `${state.materials.length} файлов`;
+  if (list) {
+    list.innerHTML = state.materials.length
+      ? state.materials.map((material) => {
+        const course = state.courses.find((item) => item.id === material.courseId);
+        return `<div class="list-row material-row"><div><strong>${escapeHtml(material.title)}</strong><small>${escapeHtml(course?.title || 'Общий материал')} · ${escapeHtml(material.fileName)} · ${Math.round((material.size || 0) / 1024)} KB</small></div><a class="button secondary compact" href="${material.dataUrl}" target="_blank" rel="noopener noreferrer">Открыть PDF</a></div>`;
+      }).join('')
+      : '<p class="muted" style="margin:0;">PDF-материалы пока не добавлены.</p>';
+  }
+
+  const form = document.getElementById('wikiMaterialForm');
+  if (form) {
+    form.onsubmit = (event) => {
+      event.preventDefault();
+      const fd = new FormData(form);
+      const file = fd.get('file');
+      const status = document.getElementById('wikiMaterialStatus');
+      if (!(file instanceof File) || file.type !== 'application/pdf') {
+        status.innerText = 'Загрузите PDF-файл.';
+        status.className = 'submission-status status-rejected';
+        return;
+      }
+      if (file.size > 2 * 1024 * 1024) {
+        status.innerText = 'Для демо загрузите PDF до 2 МБ.';
+        status.className = 'submission-status status-rejected';
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = () => {
+        state.materials.unshift({
+          id: Date.now(),
+          courseId: Number(fd.get('courseId')),
+          title: String(fd.get('title') || file.name).trim(),
+          fileName: file.name,
+          size: file.size,
+          dataUrl: reader.result,
+          uploadedBy: currentUser.name,
+          uploadedAt: new Date().toISOString()
+        });
+        saveData();
+        status.innerText = 'PDF добавлен в справочник.';
+        status.className = 'submission-status status-approved';
+        form.reset();
+        renderWiki();
+      };
+      reader.readAsDataURL(file);
+    };
+  }
 }
 
 function renderProfile() {

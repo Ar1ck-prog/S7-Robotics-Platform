@@ -414,6 +414,7 @@
         <div class="pomodoro-timer" id="pomodoroTimer">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
               <span id="timerDisplay">25:00</span>
+              <input id="timerMinutes" class="timer-input" type="number" min="5" max="120" step="5" value="25" title="Минуты фокуса" />
               <button id="btnTimerToggle" class="icon-button" title="Старт/Пауза"><svg viewBox="0 0 24 24" fill="currentColor" width="12"><polygon points="5 3 19 12 5 21 5 3"/></svg></button>
               <button id="btnTimerReset" class="icon-button" title="Сбросить"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg></button>
             </div>
@@ -782,6 +783,34 @@
           </div>
         </div>
       </div>
+      <div class="dashboard-grid mt-4">
+        <article class="card">
+          <div class="card-header">
+            <h3>PDF-материалы от менторов</h3>
+            <span class="badge active" id="wikiMaterialsCount">0 файлов</span>
+          </div>
+          <div class="card-body list" id="wikiMaterialsList"></div>
+        </article>
+        <article class="card mentor-only-card" id="wikiMaterialUploadCard" hidden>
+          <div class="card-header"><h3>Добавить PDF в справочник</h3></div>
+          <div class="card-body">
+            <form id="wikiMaterialForm" class="auth-form">
+              <label>Курс
+                <select name="courseId" id="wikiMaterialCourse"></select>
+              </label>
+              <label>Название материала
+                <input name="title" required minlength="3" placeholder="Например: Arduino sensors cheat sheet" />
+              </label>
+              <label>PDF-файл
+                <input name="file" type="file" accept="application/pdf,.pdf" required />
+                <small>Для демо PDF хранится локально в браузере. Лучше загружать файлы до 2 МБ.</small>
+              </label>
+              <button class="button primary" type="submit">Загрузить PDF</button>
+              <p id="wikiMaterialStatus" class="submission-status"></p>
+            </form>
+          </div>
+        </article>
+      </div>
     </template>
 
     <!-- Template: Leaderboard -->
@@ -1055,6 +1084,59 @@
             <div class="card-body mentor-template-list" id="mentorFeedbackTemplates"></div>
           </article>
         </div>
+      </div>
+      <div class="dashboard-grid mt-4">
+        <article class="card">
+          <div class="card-header">
+            <h3>Создать урок</h3>
+            <span class="badge active">Mentor CMS</span>
+          </div>
+          <div class="card-body">
+            <form id="mentorLessonForm" class="auth-form">
+              <label>Курс
+                <select name="courseId" id="mentorLessonCourse"></select>
+              </label>
+              <label>Название урока
+                <input name="title" required minlength="3" placeholder="Например: Servo calibration challenge" />
+              </label>
+              <label>Теория
+                <textarea name="theory" rows="3" required placeholder="Короткое объяснение темы"></textarea>
+              </label>
+              <label>Схема / компоненты
+                <textarea name="schema" rows="2" placeholder="Пины, порты, компоненты"></textarea>
+              </label>
+              <label>Стартовый код
+                <textarea name="code" rows="5" placeholder="Код или псевдокод"></textarea>
+              </label>
+              <label>Задание ученику
+                <textarea name="task" rows="3" required placeholder="Что должен собрать, проверить и отправить ученик"></textarea>
+              </label>
+              <button class="button primary" type="submit">Опубликовать урок</button>
+              <p id="mentorLessonStatus" class="submission-status"></p>
+            </form>
+          </div>
+        </article>
+        <article class="card">
+          <div class="card-header">
+            <h3>Быстрое задание</h3>
+            <span class="badge pending">Challenge</span>
+          </div>
+          <div class="card-body">
+            <form id="mentorAssignmentForm" class="auth-form">
+              <label>Курс
+                <select name="courseId" id="mentorAssignmentCourse"></select>
+              </label>
+              <label>Название задания
+                <input name="title" required minlength="3" placeholder="Например: ESP32 alert demo" />
+              </label>
+              <label>Описание задания
+                <textarea name="task" rows="7" required placeholder="Критерии результата, что отправить, как ментор будет проверять"></textarea>
+              </label>
+              <button class="button secondary" type="submit">Добавить как урок-задание</button>
+              <p id="mentorAssignmentStatus" class="submission-status"></p>
+            </form>
+          </div>
+        </article>
       </div>
     </template>
 
