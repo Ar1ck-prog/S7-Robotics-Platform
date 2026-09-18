@@ -1,4 +1,8 @@
-﻿const STORAGE_KEY = 's7-platform-mvp-data-v3';
+const STORAGE_KEY = 's7-platform-mvp-data-v3';
+const supabaseUrl = typeof CONFIG !== 'undefined' ? CONFIG.SUPABASE_URL : '';
+const supabaseKey = typeof CONFIG !== 'undefined' ? CONFIG.SUPABASE_ANON_KEY : '';
+const supabase = (window.supabase && supabaseUrl && supabaseKey) ? window.supabase.createClient(supabaseUrl, supabaseKey) : null;
+
 const SESSION_KEY = 's7-platform-session';
 const LANG_KEY = 's7-platform-lang';
 const TIMER_MINUTES_KEY = 's7-platform-focus-minutes';
@@ -743,21 +747,49 @@ function showAppShell() {
   }
 }
 
-document.getElementById('loginForm').addEventListener('submit', (e) => {
+document.getElementById('loginForm').addEventListener('submit', async (e) => {
   e.preventDefault();
+  if (!supabase) return alert('Supabase не настроен в config.js!');
+  
   const fd = new FormData(e.target);
   const email = String(fd.get('email')).trim().toLowerCase();
   const pass = fd.get('password');
   const role = fd.get('role');
-
-  const user = state.users.find(u => u.email === email && u.password === pass && u.role === role);
-  if (user) {
-    currentUser = user;
-    localStorage.setItem(SESSION_KEY, user.id);
-    document.getElementById('authError').innerText = '';
-    showAppShell();
-  } else {
-    document.getElementById('authError').innerText = 'Неверный email, пароль или роль';
+  const btn = e.target.querySelector('button');
+  const errorEl = document.getElementById('authError');
+  
+  btn.disabled = true;
+  btn.innerText = 'Загрузка...';
+  errorEl.innerText = '';
+  
+  const { data, error } = await supabase.auth.signInWithPassword({
+    email: email,
+    password: pass
+  });
+  
+  btn.disabled = false;
+  btn.innerText = 'Войти';
+  
+  if (error) {
+    errorEl.innerText = error.message;
+    return;
+  }
+  
+  if (data.user) {
+    const { data: profile } = await supabase.from('profiles').select('*').eq('id', data.user.id).single();
+    if (profile) {
+      if (profile.role !== role) {
+        errorEl.innerText = 'Неверно выбрана роль (Вы зарегистрированы как ' + profile.role + ')';
+        await supabase.auth.signOut();
+        return;
+      }
+      currentUser = { id: data.user.id, ...profile };
+      localStorage.setItem(SESSION_KEY, data.user.id);
+      errorEl.innerText = '';
+      showAppShell();
+    } else {
+      errorEl.innerText = 'Профиль не найден';
+    }
   }
 });
 
