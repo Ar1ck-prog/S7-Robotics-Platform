@@ -1501,46 +1501,78 @@ body.dark-mode .ai-score {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 40px 0;
-  gap: 32px;
+  padding: 20px 0 60px 0;
+  gap: 40px;
   position: relative;
+}
+/* The central "path" line connecting the nodes */
+.duo-path::before {
+  content: "";
+  position: absolute;
+  top: 40px;
+  bottom: 60px;
+  left: 50%;
+  width: 16px;
+  margin-left: -8px;
+  background: var(--surface-2);
+  border-radius: 8px;
+  z-index: 0;
 }
 .duo-node-wrapper {
   position: relative;
   width: 100%;
   display: flex;
   justify-content: center;
+  z-index: 1;
 }
 .duo-node-wrapper:nth-child(even) {
-  transform: translateX(40px);
+  transform: translateX(45px);
 }
 .duo-node-wrapper:nth-child(odd) {
-  transform: translateX(-40px);
+  transform: translateX(-45px);
 }
 .duo-node {
-  width: 72px;
-  height: 72px;
+  width: 80px;
+  height: 80px;
   border-radius: 50%;
-  background: var(--surface-2);
-  border: 3px solid var(--blue-200);
-  box-shadow: 0 6px 0 var(--blue-200);
+  background: var(--surface);
+  border: 4px solid var(--blue-200);
+  box-shadow: 0 8px 0 var(--blue-200);
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: transform 0.1s;
-  color: var(--blue-600);
+  transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  color: var(--blue-500);
+  position: relative;
 }
 .duo-node.active {
   background: var(--blue-500);
-  border-color: var(--blue-500);
-  box-shadow: 0 6px 0 var(--blue-700);
+  border-color: var(--blue-600);
+  box-shadow: 0 8px 0 var(--blue-700);
   color: white;
+  animation: floatNode 2s ease-in-out infinite;
+}
+.duo-node.active::after {
+  content: "START";
+  position: absolute;
+  top: -24px;
+  background: white;
+  color: var(--blue-600);
+  padding: 4px 10px;
+  font-size: 12px;
+  font-weight: 800;
+  border-radius: 12px;
+  border: 2px solid var(--line);
+}
+@keyframes floatNode {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
 }
 .duo-node.completed {
   background: var(--green);
-  border-color: var(--green);
-  box-shadow: 0 6px 0 var(--green-dark, #059669);
+  border-color: #059669;
+  box-shadow: 0 8px 0 #047857;
   color: white;
 }
 .duo-node:active {
@@ -1569,4 +1601,9 @@ body.dark-mode .ai-score {
 }
 body.dark-mode .duo-node-label {
   background: var(--surface-2);
+}
+body.dark-mode .duo-node.active::after {
+  background: var(--surface-2);
+  color: white;
+  border-color: var(--line);
 }
