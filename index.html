@@ -1,0 +1,733 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>S7 Robotics Platform</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <!-- Animated Tech Background for App -->
+    <div class="app-bg-pattern"></div>
+
+    <!-- Landing Screen -->
+    <section id="landingScreen" class="landing-screen" hidden>
+      <!-- Landing Glow Background -->
+      <div class="landing-glow"></div>
+      
+      <!-- Navigation -->
+      <header class="landing-header">
+        <div class="landing-brand">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="landing-logo">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+          </svg>
+          S7 Robotics
+        </div>
+        <div class="landing-nav-links">
+          <a href="#about">О платформе</a>
+          <a href="#howItWorks">Как это работает</a>
+          <a href="#courses">Направления</a>
+          <a href="#faq">FAQ</a>
+        </div>
+        <button class="button primary" id="btnGoAuth">Войти в LMS</button>
+      </header>
+      
+      <!-- Hero Section -->
+      <div class="landing-hero">
+        <div class="landing-hero-content">
+          <div class="hero-badge">MVP Версия для Хакатона</div>
+          <h1>Единая цифровая экосистема инженера</h1>
+          <p>Платформа S7 Robotics сопровождает ученика от первого урока до сборки собственного инженерного проекта и победы на международных соревнованиях.</p>
+          <div class="landing-actions">
+            <button class="button primary large" id="btnStartLearning">Начать обучение</button>
+            <a href="#about" class="button secondary large">Узнать больше</a>
+          </div>
+        </div>
+        <div class="landing-hero-visual">
+          <div class="abstract-robot-container">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" class="anim-float abstract-robot">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" class="anim-pulse"/>
+              <circle cx="12" cy="12" r="3" fill="var(--blue-600)" class="anim-flicker" opacity="0.3" />
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- About / Features -->
+      <div id="about" class="landing-section fade-in">
+        <div class="section-heading">
+          <h2>Почему S7 Robotics Platform?</h2>
+          <p>Мы объединили передовые методики преподавания робототехники и современные IT-инструменты в одном месте.</p>
+        </div>
+        <div class="landing-features">
+          <div class="feature-card">
+            <div class="feature-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+            </div>
+            <h3>Интерактивные курсы</h3>
+            <p>Теория, интерактивные схемы подключения компонентов (Fritzing) и примеры кода. Всё структурировано от простого к сложному.</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="2" ry="2"/><rect x="9" y="9" width="6" height="6"/><line x1="9" y1="1" x2="9" y2="4"/><line x1="15" y1="1" x2="15" y2="4"/><line x1="9" y1="20" x2="9" y2="23"/><line x1="15" y1="20" x2="15" y2="23"/><line x1="20" y1="9" x2="23" y2="9"/><line x1="20" y1="14" x2="23" y2="14"/><line x1="1" y1="9" x2="4" y2="9"/><line x1="1" y1="14" x2="4" y2="14"/></svg>
+            </div>
+            <h3>AI Robotics Mentor</h3>
+            <p>Умный ассистент анализирует код и схемы ученика, давая наводящие подсказки, не решая задачу за него.</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"></polyline><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"></path></svg>
+            </div>
+            <h3>Проверка ментором</h3>
+            <p>Проекты отправляются напрямую наставнику. Ученик получает качественную обратную связь и оценку.</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path></svg>
+            </div>
+            <h3>Геймификация</h3>
+            <p>Начисление XP за проекты, повышение уровней, ранги и глобальный рейтинг. Учиться становится по-настоящему азартно.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- How it works -->
+      <div id="howItWorks" class="landing-section bg-surface-alt fade-in">
+        <div class="section-heading">
+          <h2>Как проходит обучение</h2>
+          <p>Прозрачный и понятный процесс от теории к реальному железу.</p>
+        </div>
+        <div class="steps-grid">
+          <div class="step-card">
+            <div class="step-number">1</div>
+            <h3>Теория</h3>
+            <p>Изучайте видеоуроки и интерактивные конспекты на платформе в удобном темпе.</p>
+          </div>
+          <div class="step-card">
+            <div class="step-number">2</div>
+            <h3>Симуляция</h3>
+            <p>Собирайте схемы в виртуальной лаборатории (Wokwi) и проверяйте код без риска.</p>
+          </div>
+          <div class="step-card">
+            <div class="step-number">3</div>
+            <h3>Железо</h3>
+            <p>Переносите логику на реального робота: Arduino, ESP32 или LEGO SPIKE.</p>
+          </div>
+          <div class="step-card">
+            <div class="step-number">4</div>
+            <h3>Ревью</h3>
+            <p>Отправляйте видео работы робота наставнику, получайте XP и повышайте свой ранг!</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Equipment Section -->
+      <div id="equipment" class="landing-section fade-in">
+        <div class="section-heading">
+          <h2>С чем мы работаем</h2>
+          <p>Мы используем индустриальные стандарты и лучшее образовательное железо.</p>
+        </div>
+        <div class="tech-stack">
+          <div class="tech-chip">Arduino UNO & Nano</div>
+          <div class="tech-chip">NodeMCU ESP32 (IoT)</div>
+          <div class="tech-chip">LEGO SPIKE Prime</div>
+          <div class="tech-chip">Raspberry Pi 4</div>
+          <div class="tech-chip">Python 3</div>
+          <div class="tech-chip">C++ (Arduino IDE)</div>
+          <div class="tech-chip">Wokwi Simulator</div>
+        </div>
+      </div>
+
+      <!-- Courses Preview -->
+      <div id="courses" class="landing-section dark-section fade-in">
+        <div class="section-heading">
+          <h2>Направления обучения</h2>
+          <p>От блочного программирования до разработки сложных IoT-решений.</p>
+        </div>
+        <div class="courses-preview-grid">
+          <div class="course-preview-card">
+            <h4>LEGO SPIKE Prime</h4>
+            <p>Основы механики и алгоритмики для младших школьников. Блочное программирование.</p>
+          </div>
+          <div class="course-preview-card">
+            <h4>Arduino Robotics</h4>
+            <p>Создание роботов с нуля. Работа с датчиками, моторами и программирование на C++.</p>
+          </div>
+          <div class="course-preview-card">
+            <h4>ESP32 Internet of Things</h4>
+            <p>Умный дом, Wi-Fi и Bluetooth модули, интеграция с облачными сервисами и Telegram.</p>
+          </div>
+          <div class="course-preview-card">
+            <h4>Machine Learning</h4>
+            <p>Основы компьютерного зрения и нейросетей на Python для старших школьников.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Testimonials -->
+      <div id="testimonials" class="landing-section bg-surface-alt fade-in">
+        <div class="section-heading">
+          <h2>Отзывы учеников и родителей</h2>
+          <p>Сотни ребят уже сделали свои первые шаги в робототехнике вместе с нами.</p>
+        </div>
+        <div class="courses-preview-grid">
+          <div class="feature-card">
+            <p><i>"Сын (10 лет) раньше только играл в игры, а теперь сам пишет код для умного дома на Python. Платформа невероятно вовлекает благодаря уровням и XP!"</i></p>
+            <strong style="display:block; margin-top:16px;">— Елена В. (Мама)</strong>
+          </div>
+          <div class="feature-card">
+            <p><i>"Я боялся паять, но виртуальная лаборатория Wokwi помогла мне понять, как работают схемы. На хакатоне мы собрали реального робота без единой ошибки!"</i></p>
+            <strong style="display:block; margin-top:16px;">— Тимур, 14 лет</strong>
+          </div>
+          <div class="feature-card">
+            <p><i>"AI Mentor — топ! Он не решает за тебя, а подсказывает, где искать ошибку. Это заставляет реально думать, а не копировать код."</i></p>
+            <strong style="display:block; margin-top:16px;">— Алихан, 16 лет</strong>
+          </div>
+          <div class="feature-card">
+            <p><i>"Удобно, что всё в одном месте: теория, схемы, среда для кода и связь с наставником. Младшая сестра теперь тоже просится на курсы!"</i></p>
+            <strong style="display:block; margin-top:16px;">— Мадияр, 17 лет</strong>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pricing -->
+      <div id="pricing" class="landing-section fade-in">
+        <div class="section-heading">
+          <h2>Тарифы на обучение</h2>
+          <p>Выберите удобный формат для вашего ребенка.</p>
+        </div>
+        <div class="courses-preview-grid" style="grid-template-columns: repeat(3, 1fr); max-width: 1000px;">
+          <div class="feature-card" style="text-align:center;">
+            <h3>Базовый (Онлайн)</h3>
+            <div style="font-size:32px; font-weight:800; color:var(--blue-600); margin: 16px 0;">Бесплатно</div>
+            <p style="margin-bottom:24px;">Доступ к теории и виртуальной лаборатории.</p>
+            <ul style="text-align:left; color:var(--muted); line-height:1.8; margin-bottom:24px; padding-left:20px;">
+              <li>Все интерактивные курсы</li>
+              <li>Симулятор схем (Wokwi)</li>
+              <li>Базовый AI Mentor</li>
+            </ul>
+            <button class="button ghost" style="width:100%;">Начать</button>
+          </div>
+          <div class="feature-card" style="text-align:center; border-color:var(--blue-500); box-shadow:0 0 0 2px var(--blue-500);">
+            <div class="hero-badge" style="margin: -48px auto 16px;">Рекомендуем</div>
+            <h3>Премиум (Онлайн + Ментор)</h3>
+            <div style="font-size:32px; font-weight:800; color:var(--blue-600); margin: 16px 0;">15 000 ₸<small style="font-size:14px; color:var(--muted);">/мес</small></div>
+            <p style="margin-bottom:24px;">Полная поддержка и проверка кода.</p>
+            <ul style="text-align:left; color:var(--muted); line-height:1.8; margin-bottom:24px; padding-left:20px;">
+              <li>Всё из Базового тарифа</li>
+              <li>Проверка проектов наставником</li>
+              <li>Продвинутая геймификация (XP, Ранги)</li>
+              <li>Чат с ментором 24/7</li>
+            </ul>
+            <button class="button primary" style="width:100%;">Выбрать</button>
+          </div>
+          <div class="feature-card" style="text-align:center;">
+            <h3>Офлайн Центр</h3>
+            <div style="font-size:32px; font-weight:800; color:var(--blue-600); margin: 16px 0;">35 000 ₸<small style="font-size:14px; color:var(--muted);">/мес</small></div>
+            <p style="margin-bottom:24px;">Живые занятия с реальным оборудованием.</p>
+            <ul style="text-align:left; color:var(--muted); line-height:1.8; margin-bottom:24px; padding-left:20px;">
+              <li>2 занятия в неделю по 90 мин</li>
+              <li>Предоставление деталей (LEGO, Arduino)</li>
+              <li>Участие во внутренних хакатонах</li>
+            </ul>
+            <button class="button ghost" style="width:100%;">Записаться</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- FAQ Section -->
+      <div id="faq" class="landing-section bg-surface-alt fade-in">
+        <div class="section-heading">
+          <h2>Часто задаваемые вопросы</h2>
+          <p>Всё, что вам нужно знать перед тем, как начать.</p>
+        </div>
+        <div class="faq-container">
+          <details class="faq-item">
+            <summary>С какого возраста можно начать обучение?</summary>
+            <div class="faq-answer">
+              Мы рекомендуем начинать обучение с 7 лет на курсах LEGO SPIKE. Курсы по Arduino и схемотехнике отлично подходят для детей от 10 лет и старше, так как требуют базового понимания физики и математики.
+            </div>
+          </details>
+          <details class="faq-item">
+            <summary>Нужно ли покупать своё оборудование?</summary>
+            <div class="faq-answer">
+              Если вы занимаетесь в нашем офлайн-центре, всё оборудование предоставляется. Для онлайн-прохождения на платформе встроена интеграция с Wokwi — виртуальной лабораторией, где можно собирать схемы и писать код без физических деталей!
+            </div>
+          </details>
+          <details class="faq-item">
+            <summary>Чем платформа отличается от обычных уроков в классе?</summary>
+            <div class="faq-answer">
+              S7 Robotics Platform не заменяет ментора, а усиливает его. Ученики всегда видят свой прогресс (XP, рейтинг, уровни), могут перечитать теорию дома, а ментор избавлен от рутины и занимается только творческой проверкой проектов.
+            </div>
+          </details>
+          <details class="faq-item">
+            <summary>Как работает AI Robotics Mentor?</summary>
+            <div class="faq-answer">
+              Это встроенный ИИ-помощник, натренированный на частые ошибки новичков в электронике и коде. Он никогда не даёт готовый ответ, а лишь указывает направление (например: "Проверь, правильно ли настроен пин Trig на OUTPUT").
+            </div>
+          </details>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <footer class="landing-footer">
+        <div class="landing-brand">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="landing-logo">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+          </svg>
+          S7 Robotics
+        </div>
+        <p>&copy; 2026 S7 Robotics MVP. Hackathon Edition.</p>
+      </footer>
+    </section>
+
+    <!-- Auth Screen -->
+    <section id="authScreen" class="auth-screen fade-in" hidden>
+      <div class="auth-card">
+        <div class="brand auth-brand">
+          <div class="auth-logo">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+          </div>
+          <div>
+            <strong>S7 Robotics</strong>
+            <small>Вход в LMS</small>
+          </div>
+        </div>
+        <form id="loginForm" class="auth-form">
+          <label>
+            Роль
+            <select name="role">
+              <option value="student">Ученик</option>
+              <option value="mentor">Ментор</option>
+            </select>
+          </label>
+          <label>
+            Email
+            <input name="email" type="email" required placeholder="user@s7.kz" value="student@s7.kz" />
+          </label>
+          <label>
+            Пароль
+            <input name="password" type="password" required value="1234" />
+          </label>
+          <button class="button primary" type="submit">Войти</button>
+        </form>
+        <p id="authError" class="auth-error" aria-live="polite"></p>
+        <button class="button ghost" id="btnBackToLanding" style="width:100%; margin-top: 16px;">Вернуться на главную</button>
+      </div>
+    </section>
+
+    <!-- App Shell -->
+    <div class="app-shell fade-in" hidden>
+      <aside class="sidebar glass-panel">
+        <div class="brand">
+          <div class="brand-logo">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+          </div>
+          <div>
+            <strong>S7 Robotics</strong>
+            <small>Platform</small>
+          </div>
+        </div>
+        <nav class="nav" id="mainNav" aria-label="Основная навигация">
+          <!-- Dynamically populated based on role -->
+        </nav>
+        <div class="sidebar-panel" id="studentXpPanel">
+          <div class="user-profile-mini">
+            <div class="avatar" id="userAvatar">АЕ</div>
+            <div class="user-info">
+              <strong id="userLevelSidebar">Уровень 1</strong>
+              <span id="userXpSidebar">0 XP</span>
+            </div>
+          </div>
+          <div class="level-progress">
+            <div class="progress-bar-inner" id="levelProgressBar" style="width: 0%"></div>
+          </div>
+          <small class="progress-hint" id="levelProgressHint">До след. уровня: 100 XP</small>
+        </div>
+      </aside>
+
+      <main class="workspace">
+        <header class="topbar glass-panel">
+          <div>
+            <p class="eyebrow" id="pageEyebrow">Кабинет ученика</p>
+            <h1 id="pageTitle">Обзор</h1>
+          </div>
+          <div class="topbar-actions">
+            <!-- Feature 1: Pomodoro Timer -->
+            <div class="pomodoro-timer" id="pomodoroTimer">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              <span id="timerDisplay">25:00</span>
+              <button id="btnTimerToggle" class="icon-button" title="Старт/Пауза"><svg viewBox="0 0 24 24" fill="currentColor" width="12"><polygon points="5 3 19 12 5 21 5 3"/></svg></button>
+              <button id="btnTimerReset" class="icon-button" title="Сбросить"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg></button>
+            </div>
+            
+            <!-- Feature 2: Dark Mode -->
+            <button id="btnThemeToggle" class="icon-button" title="Темная тема">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+            </button>
+
+            <!-- Feature 3: Notifications -->
+            <div style="position: relative;">
+              <button id="btnNotifications" class="icon-button notification-btn" title="Уведомления">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+                <span class="notification-badge" id="notifCount">2</span>
+              </button>
+              <!-- Notifications Dropdown -->
+              <div id="notificationsDropdown" class="dropdown-menu card" hidden>
+                <div class="card-header" style="border-bottom: 1px solid var(--line); padding-bottom: 12px; margin-bottom: 8px;">
+                  <h3 style="font-size:14px; margin:0;">Уведомления</h3>
+                </div>
+                <div class="dropdown-item">
+                  <div class="avatar" style="width:24px;height:24px;font-size:10px;background:var(--green);color:white;">✓</div>
+                  <div>
+                    <strong style="display:block;font-size:13px;">Проект принят</strong>
+                    <small style="color:var(--muted);">Ментор одобрил вашу работу. +50 XP!</small>
+                  </div>
+                </div>
+                <div class="dropdown-item">
+                  <div class="avatar" style="width:24px;height:24px;font-size:10px;background:var(--blue-500);color:white;">i</div>
+                  <div>
+                    <strong style="display:block;font-size:13px;">Новый курс</strong>
+                    <small style="color:var(--muted);">Доступен курс "Умный дом ESP32"</small>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="user-chip" id="btnProfile" style="cursor:pointer;" title="Мой Профиль">
+              <strong id="currentUserName">Пользователь</strong>
+              <small id="currentUserRole">роль</small>
+            </div>
+            <button id="logoutButton" class="button ghost" type="button">Выйти</button>
+          </div>
+        </header>
+
+        <div class="scroll-area">
+          <div class="container" id="appView" role="main" aria-live="polite">
+            <!-- Views are injected here -->
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <!-- Templates -->
+    
+    <!-- Template: Student Dashboard -->
+    <template id="view-student-dashboard">
+      <div class="stats-grid">
+        <article class="card stat gamified-stat">
+          <div class="stat-icon xp-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="anim-pulse"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          </div>
+          <div>
+            <span>Опыт (XP)</span>
+            <strong id="dashXp">0</strong>
+            <small>Задания и бонусы</small>
+          </div>
+        </article>
+        <article class="card stat gamified-stat">
+          <div class="stat-icon level-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>
+          </div>
+          <div>
+            <span>Уровень</span>
+            <strong id="dashLevel">1</strong>
+            <small>Ранг: <span id="dashRank">Новичок</span></small>
+          </div>
+        </article>
+        <article class="card stat gamified-stat">
+          <div class="stat-icon streak-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="anim-flicker"><path d="M8.5 14.5A2.5 2.5 0 0011 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 11-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 002.5 2.5z"/></svg>
+          </div>
+          <div>
+            <span>Ударный режим</span>
+            <strong id="dashStreak">1</strong>
+            <small>Дней подряд</small>
+          </div>
+        </article>
+      </div>
+
+      <div class="dashboard-grid">
+        <div class="main-column">
+          <article class="card">
+            <div class="card-header">
+              <h3>Продолжить обучение</h3>
+              <button class="button primary compact" data-view-jump="course-catalog" type="button">Все курсы</button>
+            </div>
+            <div class="card-body list" id="myCoursesList">
+              <!-- Rendered in JS -->
+            </div>
+          </article>
+          
+          <!-- Feature 4: Achievements -->
+          <article class="card mt-4">
+            <div class="card-header">
+              <h3>Ваши достижения</h3>
+            </div>
+            <div class="card-body badges-grid" id="badgesList">
+              <!-- Rendered in JS -->
+            </div>
+          </article>
+        </div>
+        <div class="side-column">
+          <!-- Mascot -->
+          <article class="card mascot-card" style="text-align:center; padding: 24px;">
+            <div class="mascot-image" style="font-size:48px; margin-bottom:16px;">
+              <svg viewBox="0 0 24 24" fill="var(--blue-100)" stroke="var(--blue-600)" stroke-width="2" width="64" class="anim-float">
+                <rect x="3" y="11" width="18" height="10" rx="2" ry="2"></rect>
+                <circle cx="12" cy="5" r="2"></circle>
+                <path d="M12 7v4"></path>
+                <line x1="8" y1="16" x2="8" y2="16"></line>
+                <line x1="16" y1="16" x2="16" y2="16"></line>
+              </svg>
+            </div>
+            <h3 style="margin-bottom:8px;">Бот Борис</h3>
+            <p style="font-size:14px; color:var(--muted);">Привет! Выполни миссии на сегодня, чтобы получить бонусы.</p>
+          </article>
+          
+          <article class="card missions-card mt-4">
+            <div class="card-header">
+              <h3>Ежедневные миссии</h3>
+            </div>
+            <div class="card-body list" id="missionsList">
+              <!-- Rendered in JS -->
+            </div>
+          </article>
+
+          <!-- Feature 6: XP Shop -->
+          <article class="card mt-4 xp-shop-card">
+            <div class="card-header" style="display:flex; justify-content:space-between; align-items:center;">
+              <h3>Магазин наград</h3>
+              <span class="badge active">Твои XP: <span id="shopUserXp">0</span></span>
+            </div>
+            <div class="card-body list" id="xpShopList">
+              <!-- Rendered in JS -->
+            </div>
+          </article>
+        </div>
+      </div>
+    </template>
+
+    <!-- Template: Course Catalog -->
+    <template id="view-course-catalog">
+      <div class="course-grid" id="courseCatalogList">
+        <!-- Rendered in JS -->
+      </div>
+    </template>
+
+    <!-- Template: Profile (New Feature) -->
+    <template id="view-profile">
+      <div class="dashboard-grid">
+        <div class="main-column">
+          <div class="card">
+            <div class="card-header">
+              <h3>Профиль инженера</h3>
+            </div>
+            <div class="card-body">
+              <div style="display:flex; gap: 32px; align-items: flex-start; margin-bottom: 32px;">
+                <div class="avatar" style="width: 120px; height: 120px; font-size: 40px; flex-shrink: 0;" id="profileAvatar">АЕ</div>
+                <div style="flex:1;">
+                  <form id="profileForm" class="auth-form">
+                    <label>
+                      Ваше Имя
+                      <input type="text" id="inputProfileName" required />
+                    </label>
+                    <label>
+                      Email (Логин)
+                      <input type="email" id="inputProfileEmail" required disabled />
+                    </label>
+                    <div style="display:flex; justify-content:flex-end;">
+                      <button type="submit" class="button primary">Сохранить изменения</button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+              
+              <div style="display:flex; justify-content:center; gap:24px; padding-top: 24px; border-top: 1px solid var(--line);">
+                <div style="text-align:center;">
+                  <div style="font-size:24px; font-weight:800; color:var(--blue-600);" id="profileLevel">1</div>
+                  <small style="color:var(--muted);">Уровень</small>
+                </div>
+                <div style="text-align:center;">
+                  <div style="font-size:24px; font-weight:800; color:var(--gold);" id="profileXp">120</div>
+                  <small style="color:var(--muted);">XP</small>
+                </div>
+                <div style="text-align:center;">
+                  <div style="font-size:24px; font-weight:800; color:var(--amber);" id="profileStreak">3</div>
+                  <small style="color:var(--muted);">Ударный режим</small>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="side-column">
+          <div class="card">
+            <div class="card-header">
+              <h3>Ваш наставник</h3>
+            </div>
+            <div class="card-body" style="text-align:center;">
+              <div class="avatar" style="width:64px;height:64px;margin:0 auto 16px;">М</div>
+              <h3 id="mentorName" style="margin-bottom:8px;">Ментор S7</h3>
+              <p style="color:var(--muted); font-size:14px; margin-bottom:16px;">Инженер-разработчик. Отвечает на ваши вопросы и проверяет код.</p>
+              <button class="button secondary compact" style="width:100%;">Написать в чат</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </template>
+
+    <!-- Template: Interactive Lesson -->
+    <template id="view-interactive-lesson">
+      <div class="lesson-header">
+        <button class="button ghost" data-view-jump="student-dashboard" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path stroke-linecap="round" stroke-linejoin="round" d="M19 12H5M12 19l-7-7 7-7"/></svg>
+          К курсам
+        </button>
+        <div>
+          <span class="badge active" id="lessonRewardBadge">+50 XP за проект</span>
+          <h2 id="lessonTitle">Название урока</h2>
+        </div>
+      </div>
+      <div class="lesson-layout">
+        <div class="lesson-content">
+          <div class="card" id="lessonVideoCard" hidden>
+            <div class="card-header"><h3>Видеоинструкция (Сборка)</h3></div>
+            <div class="card-body video-container" id="lessonVideo"></div>
+          </div>
+          
+          <div class="card" id="lessonSimulatorCard" hidden>
+            <div class="card-header">
+              <div style="display:flex; align-items:center; gap:8px;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" color="var(--blue-600)"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+                <h3>Виртуальная лаборатория Wokwi</h3>
+              </div>
+            </div>
+            <div class="card-body" style="padding:0;">
+              <!-- Wokwi iframe will be injected here -->
+              <div id="lessonSimulator" style="width:100%; height:450px; background:var(--surface-2);"></div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header"><h3>Теория и задание</h3></div>
+            <div class="card-body">
+              <div id="lessonTheory"></div>
+              <div class="task-box">
+                <strong>📌 Ваше задание:</strong>
+                <div id="lessonTask"></div>
+              </div>
+            </div>
+          </div>
+          <div class="card" id="lessonSchemaCard">
+            <div class="card-header"><h3>Схема подключения</h3></div>
+            <div class="card-body" id="lessonSchema"></div>
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <h3>Код (Python / C++)</h3>
+            </div>
+            <div class="card-body">
+              <pre><code id="lessonCode"></code></pre>
+            </div>
+          </div>
+        </div>
+        <div class="lesson-sidebar">
+          <div class="card">
+            <div class="card-header"><h3>Сдача проекта</h3></div>
+            <div class="card-body">
+              <form id="submitProjectForm" class="auth-form">
+                <label>
+                  Ссылка на видео работы
+                  <input name="codeUrl" placeholder="https://youtube.com/..." id="inputCodeUrl" />
+                </label>
+                <label>
+                  Ваш код
+                  <textarea name="code" id="inputCode" rows="6" placeholder="Вставьте ваш написанный код сюда..."></textarea>
+                </label>
+                <!-- Feature 5: AI Pre-check -->
+                <button class="button ai-button compact mb-3" type="button" id="btnAiPrecheck" style="width: 100%;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16" style="margin-right:8px;"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>AI Проверка кода перед сдачей</button>
+                <div id="aiPrecheckResult" class="ai-hint mb-3" hidden></div>
+                
+                <button class="button primary" type="submit" id="btnSubmitProject" style="width: 100%;">Отправить ментору</button>
+                <p id="submissionStatus" class="submission-status"></p>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </template>
+
+
+
+    <!-- Template: Wiki (New Feature) -->
+    <template id="view-wiki">
+      <div class="card">
+        <div class="card-header">
+          <h3>Справочник инженера (Wiki)</h3>
+        </div>
+        <div class="card-body">
+          <div class="wiki-grid">
+            <div class="feature-card">
+              <h3>Arduino UNO Распиновка</h3>
+              <p>Цифровые пины: 0-13<br>Аналоговые пины: A0-A5<br>Питание: 5V, 3.3V, GND</p>
+            </div>
+            <div class="feature-card">
+              <h3>Синтаксис Python (Списки)</h3>
+              <p><code>arr = [1, 2, 3]</code><br><code>arr.append(4)</code><br><code>for x in arr: print(x)</code></p>
+            </div>
+            <div class="feature-card">
+              <h3>Закон Ома</h3>
+              <p>I = U / R<br>Ток равен напряжению, деленному на сопротивление. Не забывайте резисторы для светодиодов (220 Ом)!</p>
+            </div>
+            <div class="feature-card">
+              <h3>LEGO SPIKE Моторы</h3>
+              <p><code>from spike import MotorPair</code><br><code>pair = MotorPair('A', 'B')</code><br><code>pair.move(10, 'cm')</code></p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </template>
+
+    <!-- Template: Leaderboard -->
+    <template id="view-leaderboard">
+      <article class="card">
+        <div class="card-header">
+          <h3>Рейтинг учеников</h3>
+          <span class="badge active">Топ за неделю</span>
+        </div>
+        <div class="card-body list leaderboard-list" id="leaderboardList">
+          <!-- Rendered in JS -->
+        </div>
+      </article>
+    </template>
+
+    <!-- Template: Mentor Dashboard -->
+    <template id="view-mentor-dashboard">
+      <div class="stats-grid">
+        <article class="card stat gamified-stat">
+          <div class="stat-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="24" height="24" class="anim-bounce"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"></polyline><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"></path></svg>
+          </div>
+          <div>
+            <span>Работ на проверку</span>
+            <strong id="mentorPendingCount">0</strong>
+            <small>Требуют внимания</small>
+          </div>
+        </article>
+      </div>
+      <article class="card">
+        <div class="card-header">
+          <h3>Проекты на проверку</h3>
+        </div>
+        <div class="card-body list" id="mentorSubmissionsList">
+          <!-- Rendered in JS -->
+        </div>
+      </article>
+    </template>
+
+    <script src="app.js"></script>
+  </body>
+</html>
