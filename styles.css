@@ -336,7 +336,7 @@ body.dark-mode .landing-glow {
 .s7-logo-core {
   position: relative;
   z-index: 3;
-  width: 190px;
+  width: min(310px, 72%);
   height: 190px;
   display: grid;
   place-items: center;
