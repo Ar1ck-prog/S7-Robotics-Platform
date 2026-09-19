@@ -602,7 +602,7 @@ function initApp() {
   document.getElementById('btnBackToLanding').onclick = showLanding;
   document.getElementById('btnLoginMode').onclick = () => setAuthMode('login');
   document.getElementById('btnRegisterMode').onclick = () => setAuthMode('register');
-  document.getElementById('registerRole').onchange = updateMentorCodeVisibility;
+  
   const langSelect = document.getElementById('languageSelect');
   if (langSelect) {
     langSelect.value = currentLang;
@@ -730,11 +730,7 @@ function setAuthMode(mode) {
   translateStatic(document.getElementById('authScreen'));
 }
 
-function updateMentorCodeVisibility() {
-  const isMentor = document.getElementById('registerRole').value === 'mentor';
-  document.getElementById('mentorCodeField').hidden = !isMentor;
-  document.querySelector('#mentorCodeField input').required = isMentor;
-}
+
 
 function showAuth(mode = 'login', role = 'student') {
   document.getElementById('landingScreen').hidden = true;
@@ -743,7 +739,7 @@ function showAuth(mode = 'login', role = 'student') {
   setAuthMode(mode);
   if (mode === 'register') {
     document.getElementById('registerRole').value = role;
-    updateMentorCodeVisibility();
+    
   }
   translateStatic(document.getElementById('authScreen'));
 }
@@ -824,8 +820,8 @@ document.getElementById('registerForm').addEventListener('submit', async (e) => 
   const name = String(fd.get('name')).trim();
   const email = String(fd.get('email')).trim().toLowerCase();
   const pass = fd.get('password');
-  const confirmPass = fd.get('confirmPassword');
-  const mentorCode = fd.get('mentorCode');
+  const confirmPass = fd.get('passwordConfirm');
+  const inviteCode = fd.get('inviteCode');
   const errorEl = document.getElementById('authError');
   const btn = e.target.querySelector('button');
   
@@ -834,10 +830,8 @@ document.getElementById('registerForm').addEventListener('submit', async (e) => 
     return;
   }
   
-  if (role === 'mentor' && mentorCode !== 's7-admin-2026') {
-    errorEl.innerText = 'Неверный код доступа для ментора';
-    return;
-  }
+  if (role === 'student' && inviteCode !== 's7student2026') { errorEl.innerText = 'Неверный код доступа ученика (спросите у ментора)'; return; }
+    if (role === 'mentor' && inviteCode !== 's7mentor2026') { errorEl.innerText = 'Неверный код доступа ментора'; return; }
   
   btn.disabled = true;
   btn.innerText = 'Регистрация...';
