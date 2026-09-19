@@ -815,73 +815,141 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
   }
 });
 
-document.getElementById('registerForm').addEventListener('submit', (e) => {
+document.getElementById('registerForm').addEventListener('submit', async (e) => {
   e.preventDefault();
+  if (!supabaseClient) return alert('Supabase error');
+  
   const fd = new FormData(e.target);
-  const result = Core.registerUser(state, {
-    role: fd.get('role'),
-    name: fd.get('name'),
-    email: fd.get('email'),
-    password: fd.get('password'),
-    mentorCode: fd.get('mentorCode')
-  });
-  if (!result.valid) {
-    document.getElementById('authError').innerText = result.errors.join(' ');
+  const role = fd.get('role');
+  const name = String(fd.get('name')).trim();
+  const email = String(fd.get('email')).trim().toLowerCase();
+  const pass = fd.get('password');
+  const confirmPass = fd.get('confirmPassword');
+  const mentorCode = fd.get('mentorCode');
+  const errorEl = document.getElementById('authError');
+  const btn = e.target.querySelector('button');
+  
+  if (pass !== confirmPass) {
+    errorEl.innerText = 'Пароли не совпадают';
     return;
   }
-  currentUser = result.user;
-  saveData();
-  localStorage.setItem(SESSION_KEY, currentUser.id);
-  e.target.reset();
-  document.getElementById('authError').innerText = '';
   
-  const modal = document.getElementById('groupModal');
-  const title = document.getElementById('groupModalTitle');
-  const desc = document.getElementById('groupModalDesc');
-  const input = document.getElementById('groupInput');
-  const btn = document.getElementById('btnGroupAction');
-  const codeDisplay = document.getElementById('groupCodeDisplay');
+  if (role === 'mentor' && mentorCode !== 's7-admin-2026') {
+    errorEl.innerText = 'Неверный код доступа для ментора';
+    return;
+  }
   
-  if (currentUser.role === 'mentor') {
-    modal.style.display = 'flex';
-    codeDisplay.style.display = 'none';
-    input.style.display = 'block';
-    input.value = '';
+  btn.disabled = true;
+  btn.innerText = 'Регистрация...';
+  errorEl.innerText = '';
+  
+  const { data, error } = await supabaseClient.auth.signUp({
+    email,
+    password: pass,
+    options: {
+      data: { name, role }
+    }
+  });
+  
+  btn.disabled = false;
+  btn.innerText = 'Зарегистрироваться';
+  
+  if (error) {
+    errorEl.innerText = error.message;
+    return;
+  }
+  
+  if (data.user) {
+    currentUser = { id: data.user.id, name, role, email };
+    localStorage.setItem(SESSION_KEY, data.user.id);
+    e.target.reset();
+    errorEl.innerText = '';
     
-    title.textContent = 'Создайте группу';
-    desc.textContent = 'Введите название группы для ваших учеников.';
-    input.placeholder = 'Название группы';
-    btn.textContent = 'Создать';
+    // Group Modal Logic
+    const modal = document.getElementById('groupModal');
+    const title = document.getElementById('groupModalTitle');
+    const desc = document.getElementById('groupModalDesc');
+    const input = document.getElementById('groupInput');
+    const btnGroup = document.getElementById('btnGroupAction');
+    const codeDisplay = document.getElementById('groupCodeDisplay');
     
-    btn.onclick = () => {
-      if (btn.textContent === 'Создать') {
-        if (!input.value) return;
-        const code = 'S7-' + Math.random().toString(36).substring(2, 6).toUpperCase();
-        input.style.display = 'none';
-        codeDisplay.style.display = 'block';
-        codeDisplay.textContent = code;
-        desc.textContent = 'Ваш код группы! Отправьте его ученикам:';
-        btn.textContent = 'Войти в панель';
-      } else {
+    if (role === 'mentor') {
+      modal.style.display = 'flex';
+      codeDisplay.style.display = 'none';
+      input.style.display = 'block';
+      input.value = '';
+      
+      title.textContent = 'Создать группу';
+      desc.textContent = 'Введите название группы для учеников.';
+      input.placeholder = 'Название группы';
+      btnGroup.textContent = 'Создать';
+      
+      btnGroup.onclick = async () => {
+        if (btnGroup.textContent === 'Создать') {
+          if (!input.value) return;
+          const code = 'S7-' + Math.random().toString(36).substring(2, 6).toUpperCase();
+          const { error: gErr } = await supabaseClient.from('groups').insert({
+            mentor_id: currentUser.id,
+            name: input.value,
+            invite_code: code
+          });
+          if (gErr) {
+            alert('Ошибка создания группы: ' + gErr.message);
+            return;
+          }
+          input.style.display = 'none';
+          codeDisplay.style.display = 'block';
+          codeDisplay.textContent = code;
+          desc.textContent = 'Группа создана! Отправьте код ученикам:';
+          btnGroup.textContent = 'Войти в систему';
+        } else {
+          modal.style.display = 'none';
+          showAppShell();
+        }
+      };
+    } else {
+      modal.style.display = 'flex';
+      codeDisplay.style.display = 'none';
+      input.style.display = 'block';
+      input.value = '';
+      
+      title.textContent = 'Присоединиться к группе';
+      desc.textContent = 'Введите код, выданный вашим ментором.';
+      input.placeholder = 'Код: S7-ABCD';
+      btnGroup.textContent = 'Войти в группу';
+      
+      btnGroup.onclick = async () => {
+        const inviteCode = input.value.trim().toUpperCase();
+        if (!inviteCode) return;
+        
+        btnGroup.disabled = true;
+        btnGroup.textContent = 'Проверка...';
+        
+        const { data: group, error: fetchErr } = await supabaseClient.from('groups').select('id').eq('invite_code', inviteCode).single();
+        
+        if (fetchErr || !group) {
+          alert('Неверный код группы! Пожалуйста, проверьте код.');
+          btnGroup.disabled = false;
+          btnGroup.textContent = 'Войти в группу';
+          return;
+        }
+        
+        const { error: insertErr } = await supabaseClient.from('group_members').insert({
+          group_id: group.id,
+          student_id: currentUser.id
+        });
+        
+        if (insertErr) {
+          alert('Ошибка при вступлении в группу.');
+          btnGroup.disabled = false;
+          btnGroup.textContent = 'Войти в группу';
+          return;
+        }
+        
         modal.style.display = 'none';
         showAppShell();
-      }
-    };
-  } else {
-    modal.style.display = 'flex';
-    codeDisplay.style.display = 'none';
-    input.style.display = 'block';
-    input.value = '';
-    
-    title.textContent = 'Присоединиться к группе';
-    desc.textContent = 'Введите код, который вам дал ментор (опционально).';
-    input.placeholder = 'Например: S7-ABCD';
-    btn.textContent = 'Войти в панель';
-    
-    btn.onclick = () => {
-      modal.style.display = 'none';
-      showAppShell();
-    };
+      };
+    }
   }
 });
 
@@ -1224,429 +1292,53 @@ function renderInteractiveLesson(courseId, lessonNumber) {
     btnPrecheck.onclick = async () => {
       const codeUrl = document.getElementById('inputCodeUrl').value;
       const codeText = document.getElementById('inputCode').value;
+      const descText = document.getElementById('inputDescription').value;
       
-      if (!codeUrl && !codeText) {
+      if (!codeText) {
         precheckRes.hidden = false;
-        precheckRes.innerHTML = `${svgs.error} Вставьте код или ссылку перед проверкой!`;
+        precheckRes.innerHTML = `${svgs.error} Пожалуйста, вставьте код для проверки!`;
         return;
       }
       
-      btnPrecheck.innerHTML = `${svgs.loading} AI анализирует код...`;
+      btnPrecheck.innerHTML = `${svgs.loading} AI думает...`;
       btnPrecheck.disabled = true;
       precheckRes.hidden = false;
-      precheckRes.innerHTML = "<i>Обращение к AI Ментору...</i>";
+      precheckRes.innerHTML = "<i>Анализирую код через Gemini AI...</i>";
       
-      if (codeText && codeText.length > 5) {
-        const report = Core.analyzeArduinoCode(codeText);
-        const hints = report.hints.length
-          ? `<ul>${report.hints.map((hint) => `<li>${escapeHtml(hint)}</li>`).join('')}</ul>`
-          : '<p>Ключевые части решения на месте. Проверьте показания на разных расстояниях и пограничные случаи.</p>';
-        precheckRes.innerHTML = `<div class="ai-report"><div class="ai-score">Готовность: ${report.score}%</div><div class="ai-feedback"><strong>Проверено:</strong> ${report.passed} из ${report.total} инженерных критериев.</div><div class="ai-mentor-hint"><strong>Подсказки, не готовое решение:</strong>${hints}</div></div>`;
-      } else {
-        precheckRes.innerHTML = `${svgs.success} <strong>AI Mentor:</strong> Ссылка прикреплена. Ментор посмотрит видео!`;
-      }
-      
-      btnPrecheck.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16" style="margin-right:8px;"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>AI Проверка кода перед сдачей`;
-      btnPrecheck.disabled = false;
-    };
-  }
-
-  const btnLoadLessonCode = document.getElementById('btnLoadLessonCode');
-  const btnRunCompiler = document.getElementById('btnRunCompiler');
-  const compilerOutput = document.getElementById('compilerOutput');
-  if (btnLoadLessonCode && compilerCode) {
-    btnLoadLessonCode.onclick = () => {
-      compilerCode.value = lesson.code || '';
-      compilerOutput.innerText = t('compilerLoaded');
-    };
-  }
-  if (btnRunCompiler && compilerOutput) {
-    btnRunCompiler.onclick = async () => {
-      const language = document.getElementById('compilerLanguage').value;
-      btnRunCompiler.disabled = true;
-      compilerOutput.innerText = 'Vercel Sandbox: starting isolated compile...';
-      let result;
       try {
-        const response = await fetch('/api/compiler/run', {
+        if (!CONFIG.GEMINI_API_KEY || CONFIG.GEMINI_API_KEY === 'YOUR_GEMINI_API_KEY') {
+          throw new Error('API ключ Gemini не настроен');
+        }
+        
+        const prompt = `Действуй как опытный ментор по робототехнике. Ученик прислал код для проверки.
+Описание логики ученика: ${codeUrl}
+С чем столкнулись: ${descText}
+
+Код ученика:
+${codeText}
+
+Оцени код по 100-балльной шкале и дай краткие, полезные советы по улучшению (до 3-х пунктов). Форматируй ответ в HTML (используй <strong>, <ul>, <li>). Не используй markdown. Начни сразу с оценки: "<strong>Оценка: X/100</strong><br><br>Совеы:..."`;
+
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${CONFIG.GEMINI_API_KEY}`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ language, code: compilerCode.value })
+          body: JSON.stringify({
+            contents: [{ parts: [{ text: prompt }] }]
+          })
         });
-        if (!response.ok) throw new Error(`HTTP ${response.status}`);
-        const apiResult = await response.json();
-        result = {
-          ok: apiResult.ok,
-          output: `${apiResult.provider || 'vercel-sandbox'}\n${apiResult.stdout || ''}\n${apiResult.stderr || ''}`.trim(),
-          errors: apiResult.ok ? [] : [apiResult.stderr || apiResult.hint || 'Sandbox build failed'],
-          warnings: []
-        };
-      } catch {
-        result = Core.runCompilerSandbox({ language, code: compilerCode.value });
+        
+        const data = await response.json();
+        if (data.error) throw new Error(data.error.message);
+        
+        const aiHtml = data.candidates[0].content.parts[0].text;
+        
+        precheckRes.innerHTML = `<div class="ai-report" style="text-align:left;">${aiHtml}</div>`;
+      } catch (err) {
+        precheckRes.innerHTML = `<div class="ai-report" style="color:red;">Ошибка AI: ${err.message}</div>`;
       }
-      const lines = [
-        result.ok ? ' Build passed' : ' Build failed',
-        result.output,
-        ...(result.errors || []).map((error) => `error: ${error}`),
-        ...(result.warnings || []).map((warning) => `warning: ${warning}`)
-      ].filter(Boolean);
-      compilerOutput.innerText = lines.join('\n');
-      btnRunCompiler.disabled = false;
+      
+      btnPrecheck.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16" style="margin-right:8px;"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>AI проверка перед сдачей`;
+      btnPrecheck.disabled = false;
     };
-  }
-}
-
-function renderMentorDashboard() {
-  document.getElementById('pageTitle').innerText = t('mentorTitle');
-  document.getElementById('pageEyebrow').innerText = t('mentorEyebrow');
-
-  const pending = state.submissions.filter(s => s.status === 'pending');
-  const students = state.users.filter(user => user.role === 'student');
-  const approved = state.submissions.filter(submission => submission.status === 'approved');
-  const riskStudents = students.filter((student) => {
-    const progress = state.studentProgress[student.id] || {};
-    const acceptedProjects = approved.filter(submission => submission.studentId === student.id).length;
-    return Object.keys(progress).length === 0 || acceptedProjects === 0;
-  });
-  document.getElementById('mentorPendingCount').innerText = pending.length;
-  document.getElementById('mentorStudentsCount').innerText = students.length;
-  document.getElementById('mentorApprovedCount').innerText = approved.length;
-  document.getElementById('mentorRiskMetric').innerText = riskStudents.length;
-  document.getElementById('mentorSlaMetric').innerText = pending.length ? `18 ${t('minuteShort')}` : `0 ${t('minuteShort')}`;
-
-  const studentsList = document.getElementById('mentorStudentsList');
-  studentsList.innerHTML = students.map((student) => {
-    const progress = state.studentProgress[student.id] || {};
-    const activeCourses = Object.keys(progress).length;
-    const acceptedProjects = approved.filter(submission => submission.studentId === student.id).length;
-    const risk = activeCourses === 0 || acceptedProjects === 0;
-    return `<div class="student-overview"><div class="avatar">${escapeHtml(getInitials(student.name))}</div><div><strong>${escapeHtml(student.name)}</strong><small>${activeCourses} ${t('courseUnit')} · ${acceptedProjects} ${t('projectUnit')}</small></div><span class="badge ${risk ? 'pending' : 'active'}">${risk ? t('risk') : t('ok')}</span></div>`;
-  }).join('') || '<p class="muted">Ученики пока не зарегистрированы.</p>';
-
-  const groupsList = document.getElementById('mentorGroupsList');
-  if (groupsList) {
-    const groups = [
-      { name: 'Arduino A1', progress: 72, queue: pending.length },
-      { name: 'SPIKE Junior', progress: 64, queue: 1 },
-      { name: 'ESP32 IoT', progress: 48, queue: 3 }
-    ];
-    groupsList.innerHTML = groups.map(group => `
-      <div class="mentor-group-row">
-        <div><strong>${group.name}</strong><small>${group.queue} работ(ы) в очереди</small></div>
-        <span>${group.progress}%</span>
-        <div class="progress-bar"><span style="width:${group.progress}%"></span></div>
-      </div>
-    `).join('');
-  }
-
-  const templates = document.getElementById('mentorFeedbackTemplates');
-  if (templates) {
-    templates.innerHTML = [
-      'Проверь GND и питание датчика перед повторной сдачей.',
-      'Добавь Serial output и покажи измерения на трех расстояниях.',
-      'Хорошая работа: теперь попробуй обработать случай distance < 10 см.'
-    ].map(item => `<button class="mentor-template" type="button">${escapeHtml(item)}</button>`).join('');
-  }
-
-  fillCourseSelect(document.getElementById('mentorLessonCourse'));
-  fillCourseSelect(document.getElementById('mentorAssignmentCourse'));
-  const lessonForm = document.getElementById('mentorLessonForm');
-  if (lessonForm) {
-    lessonForm.onsubmit = (event) => {
-      event.preventDefault();
-      const fd = new FormData(lessonForm);
-      const result = addLessonToCourse(fd.get('courseId'), {
-        title: String(fd.get('title') || '').trim(),
-        theory: String(fd.get('theory') || '').trim(),
-        schema: String(fd.get('schema') || '').trim(),
-        code: String(fd.get('code') || '').trim(),
-        task: String(fd.get('task') || '').trim()
-      });
-      const status = document.getElementById('mentorLessonStatus');
-      if (!result.ok) {
-        status.innerText = result.error;
-        status.className = 'submission-status status-rejected';
-        return;
-      }
-      saveData();
-      status.innerText = `Урок ${result.lesson.number} добавлен в курс ${result.course.title}.`;
-      status.className = 'submission-status status-approved';
-      lessonForm.reset();
-      fillCourseSelect(document.getElementById('mentorLessonCourse'));
-    };
-  }
-
-  const assignmentForm = document.getElementById('mentorAssignmentForm');
-  if (assignmentForm) {
-    assignmentForm.onsubmit = (event) => {
-      event.preventDefault();
-      const fd = new FormData(assignmentForm);
-      const result = addLessonToCourse(fd.get('courseId'), {
-        title: String(fd.get('title') || '').trim(),
-        theory: 'Challenge от ментора: изучите критерии, спланируйте решение и сдайте проект через форму отправки.',
-        schema: 'Схема зависит от выбранного решения. Укажите компоненты в описании проекта.',
-        code: '// Challenge starter\n// Напишите решение самостоятельно и проверьте его через Vercel Sandbox.\n',
-        task: String(fd.get('task') || '').trim()
-      });
-      const status = document.getElementById('mentorAssignmentStatus');
-      if (!result.ok) {
-        status.innerText = result.error;
-        status.className = 'submission-status status-rejected';
-        return;
-      }
-      saveData();
-      status.innerText = `Задание опубликовано как урок ${result.lesson.number}.`;
-      status.className = 'submission-status status-approved';
-      assignmentForm.reset();
-      fillCourseSelect(document.getElementById('mentorAssignmentCourse'));
-    };
-  }
-
-  const list = document.getElementById('mentorSubmissionsList');
-  list.innerHTML = '';
-
-  if (pending.length === 0) {
-    list.innerHTML = `<p class="muted" style="margin:0;">${t('allReviewed')}</p>`;
-    return;
-  }
-
-  pending.forEach(sub => {
-    const student = state.users.find(u => u.id == sub.studentId);
-    const course = state.courses.find(c => c.id == sub.courseId);
-
-    const div = document.createElement('div');
-    div.className = 'list-row';
-    div.style.flexDirection = 'column';
-    div.style.alignItems = 'stretch';
-    div.style.gap = '12px';
-    
-    div.innerHTML = `
-      <div style="display:flex; justify-content:space-between; align-items:center;">
-        <div>
-          <strong>${escapeHtml(student?.name || t('unknownStudent'))}</strong>
-          <small>${escapeHtml(course?.title || t('unknownCourse'))} · Урок ${sub.lessonNumber}</small>
-        </div>
-        <span class="badge pending">${t('pendingBadge')}</span>
-      </div>
-      <div style="background:var(--surface); padding:12px; border-radius:8px; border:1px solid var(--line);">
-        ${sub.codeUrl ? `<p style="margin:0 0 8px; font-size:14px;"><strong>Демо:</strong> <a href="${escapeHtml(sub.codeUrl)}" target="_blank" rel="noopener noreferrer">${escapeHtml(sub.codeUrl)}</a></p>` : ''}
-        ${sub.code ? `<pre class="submission-code"><code>${escapeHtml(sub.code)}</code></pre>` : ''}
-        <p style="margin:8px 0 0; font-size:14px; color:var(--muted);">${escapeHtml(sub.description || 'Без описания')}</p>
-      </div>
-      <label class="review-note">${t('reviewHint')}
-        <textarea class="review-feedback" rows="2" maxlength="500" placeholder="Что получилось и что улучшить"></textarea>
-      </label>
-      <p class="review-error" hidden></p>
-      <div style="display:flex; gap:12px; margin-top:8px;">
-        <button class="button success compact btn-approve" style="flex:1;">${t('approve')}</button>
-        <button class="button ghost compact btn-reject" style="flex:1;">${t('reject')}</button>
-      </div>
-    `;
-
-    const review = (action) => {
-      const result = Core.reviewSubmission(state, sub.id, action, div.querySelector('.review-feedback').value);
-      const error = div.querySelector('.review-error');
-      if (!result.ok) {
-        error.hidden = false;
-        error.innerText = result.error;
-        return;
-      }
-      saveData();
-      renderMentorDashboard();
-    };
-    div.querySelector('.btn-approve').onclick = () => review('approve');
-    div.querySelector('.btn-reject').onclick = () => review('reject');
-
-    list.appendChild(div);
-  });
-}
-
-function renderLeaderboard() {
-  document.getElementById('pageTitle').innerText = 'Рейтинг';
-  document.getElementById('pageEyebrow').innerText = 'Глобальный лидерборд';
-
-  const list = document.getElementById('leaderboardList');
-  list.innerHTML = '';
-
-  const students = state.users.filter(u => u.role === 'student')
-    .sort((a, b) => (b.level * 1000 + b.xp) - (a.level * 1000 + a.xp));
-
-  students.forEach((s, i) => {
-    const div = document.createElement('div');
-    div.className = 'list-row';
-    div.innerHTML = `
-      <div style="display:flex; align-items:center; gap:16px;">
-        <div class="rank-badge">${i + 1}</div>
-        <div>
-          <strong>${s.name}</strong>
-          <small>Уровень ${s.level} · ${getRank(s.level)}</small>
-        </div>
-      </div>
-      <div class="leaderboard-xp">${s.level * 100 + s.xp} XP</div>
-    `;
-    list.appendChild(div);
-  });
-}
-
-function renderWiki() {
-  document.getElementById('pageTitle').innerText = 'Справочник';
-  document.getElementById('pageEyebrow').innerText = 'База знаний инженера';
-  state.materials ||= [];
-  const uploadCard = document.getElementById('wikiMaterialUploadCard');
-  if (uploadCard) uploadCard.hidden = currentUser.role !== 'mentor';
-  fillCourseSelect(document.getElementById('wikiMaterialCourse'));
-
-  const list = document.getElementById('wikiMaterialsList');
-  const count = document.getElementById('wikiMaterialsCount');
-  if (count) count.innerText = `${state.materials.length} файлов`;
-  if (list) {
-    list.innerHTML = state.materials.length
-      ? state.materials.map((material) => {
-        const course = state.courses.find((item) => item.id === material.courseId);
-        return `<div class="list-row material-row"><div><strong>${escapeHtml(material.title)}</strong><small>${escapeHtml(course?.title || 'Общий материал')} · ${escapeHtml(material.fileName)} · ${Math.round((material.size || 0) / 1024)} KB</small></div><a class="button secondary compact" href="${material.dataUrl}" target="_blank" rel="noopener noreferrer">Открыть PDF</a></div>`;
-      }).join('')
-      : '<p class="muted" style="margin:0;">PDF-материалы пока не добавлены.</p>';
-  }
-
-  const form = document.getElementById('wikiMaterialForm');
-  if (form) {
-    form.onsubmit = (event) => {
-      event.preventDefault();
-      const fd = new FormData(form);
-      const file = fd.get('file');
-      const status = document.getElementById('wikiMaterialStatus');
-      if (!(file instanceof File) || file.type !== 'application/pdf') {
-        status.innerText = 'Загрузите PDF-файл.';
-        status.className = 'submission-status status-rejected';
-        return;
-      }
-      if (file.size > 2 * 1024 * 1024) {
-        status.innerText = 'Для демо загрузите PDF до 2 МБ.';
-        status.className = 'submission-status status-rejected';
-        return;
-      }
-      const reader = new FileReader();
-      reader.onload = () => {
-        state.materials.unshift({
-          id: Date.now(),
-          courseId: Number(fd.get('courseId')),
-          title: String(fd.get('title') || file.name).trim(),
-          fileName: file.name,
-          size: file.size,
-          dataUrl: reader.result,
-          uploadedBy: currentUser.name,
-          uploadedAt: new Date().toISOString()
-        });
-        saveData();
-        status.innerText = 'PDF добавлен в справочник.';
-        status.className = 'submission-status status-approved';
-        form.reset();
-        renderWiki();
-      };
-      reader.readAsDataURL(file);
-    };
-  }
-}
-
-function renderProfile() {
-  document.getElementById('pageTitle').innerText = 'Профиль';
-  document.getElementById('pageEyebrow').innerText = 'Мой аккаунт';
-  
-  document.getElementById('profileAvatar').innerText = getInitials(currentUser.name);
-  
-  document.getElementById('inputProfileName').value = currentUser.name;
-  document.getElementById('inputProfileEmail').value = currentUser.email;
-
-  const xpElem = document.getElementById('profileXp');
-  const levelElem = document.getElementById('profileLevel');
-  const streakElem = document.getElementById('profileStreak');
-  
-  if (currentUser.role === 'student') {
-    xpElem.innerText = currentUser.xp;
-    levelElem.innerText = currentUser.level;
-    streakElem.innerText = currentUser.streak || 0;
-  } else {
-    xpElem.innerText = '-';
-    levelElem.innerText = '-';
-    streakElem.innerText = '-';
-  }
-
-  // Find mentor
-  const mentor = state.users.find(u => u.role === 'mentor');
-  if (mentor) {
-    const mName = document.getElementById('mentorName');
-    if (mName) mName.innerText = mentor.name;
-  }
-
-  document.getElementById('profileForm').onsubmit = (e) => {
-    e.preventDefault();
-    const newName = document.getElementById('inputProfileName').value.trim();
-    if (newName) {
-      currentUser.name = newName;
-      saveData();
-      document.getElementById('currentUserName').innerText = currentUser.name;
-      document.getElementById('profileAvatar').innerText = getInitials(currentUser.name);
-      alert('Профиль успешно обновлён!');
-    }
-  };
-}
-
-// Start
-document.addEventListener('DOMContentLoaded', initApp);
-
-function updateTopbarStats() {
-  const elStreak = document.getElementById('globalStreak');
-  const elXp = document.getElementById('globalXp');
-  if (elStreak) elStreak.innerText = currentUser.streak ?? 0;
-  if (elXp) elXp.innerText = currentUser.xp ?? 0;
-}
-
-
-
-
-function renderSettings() {
-  const themeToggle = document.getElementById('themeToggleCheckbox');
-  const langSelect = document.getElementById('appLangSelect');
-  
-  if (themeToggle) {
-    themeToggle.checked = isDarkTheme;
-    themeToggle.onchange = (e) => {
-      isDarkTheme = e.target.checked;
-      localStorage.setItem('s7-dark-theme', isDarkTheme);
-      document.body.classList.toggle('dark-mode', isDarkTheme);
-    };
-  }
-
-  if (langSelect) {
-    langSelect.value = currentLang;
-    langSelect.onchange = (e) => {
-      currentLang = e.target.value;
-      localStorage.setItem(LANG_KEY, currentLang);
-      document.documentElement.lang = currentLang === 'kk' ? 'kk' : currentLang;
-      renderNav();
-      navigate('settings');
-      translateStatic(document.body);
-    };
-  }
-}
-
-
-
-
-
-// Smart Navbar Logic
-let lastScrollTop = 0;
-window.addEventListener('scroll', function() {
-  const nav = document.querySelector('.landing-header');
-  if (!nav || window.getComputedStyle(nav).display === 'none' || document.getElementById('appView').innerHTML.trim() !== '') return;
-  
-  let scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-  if (scrollTop > lastScrollTop && scrollTop > 80) {
-    nav.classList.add('hidden-nav');
-  } else {
-    nav.classList.remove('hidden-nav');
-  }
-  lastScrollTop = scrollTop <= 0 ? 0 : scrollTop; 
-}, false);
-
 
 

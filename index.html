@@ -1,6 +1,21 @@
 <!doctype html>
 <html lang="ru">
   <head>
+<script>
+window.onerror = function(message, source, lineno, colno, error) {
+  const errDiv = document.createElement('div');
+  errDiv.style.cssText = 'position:fixed;top:0;left:0;width:100%;background:red;color:white;z-index:999999;padding:20px;font-size:20px;';
+  errDiv.innerText = 'ERROR: ' + message + ' at ' + source + ':' + lineno;
+  document.body.appendChild(errDiv);
+};
+window.onunhandledrejection = function(event) {
+  const errDiv = document.createElement('div');
+  errDiv.style.cssText = 'position:fixed;top:0;left:0;width:100%;background:red;color:white;z-index:999999;padding:20px;font-size:20px;';
+  errDiv.innerText = 'UNHANDLED PROMISE: ' + event.reason;
+  if(document.body) document.body.appendChild(errDiv);
+  else alert('UNHANDLED PROMISE: ' + event.reason);
+};
+</script>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>S7 Robotics Platform</title>
@@ -729,12 +744,12 @@
         </div>
         <div class="lesson-sidebar">
           <div class="card">
-            <div class="card-header"><h3>Сдача проекта</h3></div>
+            <div class="card-header"><h3>Проверка кода</h3></div>
             <div class="card-body">
               <form id="submitProjectForm" class="auth-form">
                 <label>
-                  Ссылка на видео работы
-                  <input name="codeUrl" placeholder="https://youtube.com/..." id="inputCodeUrl" />
+                  Описание логики (для ИИ)
+                  <input name="codeUrl" placeholder="Опишите, что делает код..." id="inputCodeUrl" />
                 </label>
                 <label>
                   Ваш код
@@ -952,12 +967,12 @@
         </div>
         <div class="lesson-sidebar">
           <div class="card">
-            <div class="card-header"><h3>Сдача проекта</h3></div>
+            <div class="card-header"><h3>Проверка кода</h3></div>
             <div class="card-body">
               <form id="submitProjectForm" class="auth-form">
                 <label>
-                  Ссылка на видео работы
-                  <input name="codeUrl" placeholder="https://youtube.com/..." id="inputCodeUrl" />
+                  Описание логики (для ИИ)
+                  <input name="codeUrl" placeholder="Опишите, что делает код..." id="inputCodeUrl" />
                 </label>
                 <label>
                   Ваш код
