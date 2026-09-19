@@ -1266,79 +1266,170 @@ function renderInteractiveLesson(courseId, lessonNumber) {
     statusLabel.innerText = '';
   }
 
-  form.onsubmit = (e) => {
+  form.onsubmit = async (e) => {
     e.preventDefault();
+    if (!supabaseClient) return alert('Supabase не настроен!');
+    
     const fd = new FormData(e.target);
-    const result = Core.createSubmission(state, {
-      studentId: currentUser.id,
-      courseId: Number(courseId),
-      lessonNumber: Number(lessonNumber),
-      codeUrl: fd.get('codeUrl'),
-      code: fd.get('code'),
-      description: fd.get('description')
-    });
-    if (!result.valid) {
-      statusLabel.innerText = result.errors.join(' ');
-      statusLabel.className = 'submission-status status-rejected';
-      return;
-    }
-    saveData();
-    navigate('interactive-lesson', { courseId, lessonNumber });
-  };
-
-  const btnPrecheck = document.getElementById('btnAiPrecheck');
-  const precheckRes = document.getElementById('aiPrecheckResult');
-  if (btnPrecheck && precheckRes) {
-    btnPrecheck.onclick = async () => {
-      const codeUrl = document.getElementById('inputCodeUrl').value;
-      const codeText = document.getElementById('inputCode').value;
-      const descText = document.getElementById('inputDescription').value;
-      
-      if (!codeText) {
-        precheckRes.hidden = false;
-        precheckRes.innerHTML = `${svgs.error} Пожалуйста, вставьте код для проверки!`;
+    const logicDesc = fd.get('codeUrl');
+    const codeText = fd.get('code');
+    const description = fd.get('description');
+    const file = fd.get('projectFile');
+    
+    btnSubmit.disabled = true;
+    btnSubmit.innerText = 'Отправка...';
+    
+    let fileUrl = null;
+    
+    if (file && file.size > 0) {
+      if (file.size > 5 * 1024 * 1024) {
+        alert('Файл слишком большой (максимум 5 МБ)');
+        btnSubmit.disabled = false;
+        btnSubmit.innerText = 'Отправить проект';
         return;
       }
       
-      btnPrecheck.innerHTML = `${svgs.loading} AI думает...`;
-      btnPrecheck.disabled = true;
-      precheckRes.hidden = false;
-      precheckRes.innerHTML = "<i>Анализирую код через Gemini AI...</i>";
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${currentUser.id}-${Date.now()}.${fileExt}`;
       
-      try {
-        if (!CONFIG.GEMINI_API_KEY || CONFIG.GEMINI_API_KEY === 'YOUR_GEMINI_API_KEY') {
-          throw new Error('API ключ Gemini не настроен');
-        }
+      const { data: uploadData, error: uploadError } = await supabaseClient
+        .storage
+        .from('project_files')
+        .upload(fileName, file);
         
-        const prompt = `Действуй как опытный ментор по робототехнике. Ученик прислал код для проверки.
-Описание логики ученика: ${codeUrl}
-С чем столкнулись: ${descText}
-
-Код ученика:
-${codeText}
-
-Оцени код по 100-балльной шкале и дай краткие, полезные советы по улучшению (до 3-х пунктов). Форматируй ответ в HTML (используй <strong>, <ul>, <li>). Не используй markdown. Начни сразу с оценки: "<strong>Оценка: X/100</strong><br><br>Совеы:..."`;
-
-        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${CONFIG.GEMINI_API_KEY}`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            contents: [{ parts: [{ text: prompt }] }]
-          })
-        });
-        
-        const data = await response.json();
-        if (data.error) throw new Error(data.error.message);
-        
-        const aiHtml = data.candidates[0].content.parts[0].text;
-        
-        precheckRes.innerHTML = `<div class="ai-report" style="text-align:left;">${aiHtml}</div>`;
-      } catch (err) {
-        precheckRes.innerHTML = `<div class="ai-report" style="color:red;">Ошибка AI: ${err.message}</div>`;
+      if (uploadError) {
+        alert('Ошибка загрузки файла: ' + uploadError.message);
+        btnSubmit.disabled = false;
+        btnSubmit.innerText = 'Отправить проект';
+        return;
       }
       
-      btnPrecheck.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16" style="margin-right:8px;"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>AI проверка перед сдачей`;
-      btnPrecheck.disabled = false;
-    };
+      const { data: publicUrlData } = supabaseClient
+        .storage
+        .from('project_files')
+        .getPublicUrl(fileName);
+        
+      fileUrl = publicUrlData.publicUrl;
+    }
+    
+    const { error: dbError } = await supabaseClient.from('submissions').insert({
+      student_id: currentUser.id,
+      course_id: String(courseId),
+      lesson_number: Number(lessonNumber),
+      logic_desc: logicDesc,
+      code_text: codeText,
+      description: description,
+      file_url: fileUrl
+    });
+    
+    if (dbError) {
+      alert('Ошибка при сохранении: ' + dbError.message);
+      btnSubmit.disabled = false;
+      btnSubmit.innerText = 'Отправить проект';
+      return;
+    }
+    
+    statusLabel.innerText = 'Успешно отправлено!';
+    statusLabel.className = 'submission-status status-approved';
+    btnSubmit.innerText = 'Отправлено';
+  };
 
 
+
+async function renderMentorDashboard() {
+  document.getElementById('pageTitle').innerText = 'Кабинет Ментора';
+  document.getElementById('pageEyebrow').innerText = 'Управление группами';
+
+  if (!supabaseClient) return;
+
+  // 1. Fetch mentor's groups to get student IDs
+  const { data: groups } = await supabaseClient.from('groups').select('id, name, invite_code').eq('mentor_id', currentUser.id);
+  const groupIds = groups ? groups.map(g => g.id) : [];
+
+  let students = [];
+  if (groupIds.length > 0) {
+    const { data: members } = await supabaseClient.from('group_members').select('student_id').in('group_id', groupIds);
+    if (members && members.length > 0) {
+      const studentIds = members.map(m => m.student_id);
+      const { data: profiles } = await supabaseClient.from('profiles').select('*').in('id', studentIds);
+      students = profiles || [];
+    }
+  }
+
+  // 2. Fetch submissions for these students
+  let submissions = [];
+  if (students.length > 0) {
+    const studentIds = students.map(s => s.id);
+    const { data: subs } = await supabaseClient.from('submissions').select('*').in('student_id', studentIds).order('created_at', { ascending: false });
+    submissions = subs || [];
+  }
+
+  const pending = submissions.filter(s => s.status === 'pending');
+  const approved = submissions.filter(s => s.status === 'approved');
+
+  document.getElementById('mentorPendingCount').innerText = pending.length;
+  document.getElementById('mentorStudentsCount').innerText = students.length;
+  document.getElementById('mentorApprovedCount').innerText = approved.length;
+  
+  const riskStudents = students.filter(student => {
+    return approved.filter(s => s.student_id === student.id).length === 0;
+  });
+  const riskMetric = document.getElementById('mentorRiskMetric');
+  if (riskMetric) riskMetric.innerText = riskStudents.length;
+
+  const subsList = document.getElementById('mentorSubmissionsList');
+  if (subsList) {
+    if (pending.length === 0) {
+      subsList.innerHTML = '<p class="muted">Нет работ на проверку.</p>';
+    } else {
+      subsList.innerHTML = pending.map(sub => {
+        const student = students.find(s => s.id === sub.student_id);
+        const name = student ? escapeHtml(student.name) : 'Неизвестно';
+        let mediaHtml = '';
+        if (sub.file_url) {
+          // If it's a video, use video tag, else img
+          const isVideo = sub.file_url.match(/\.(mp4|webm|ogg)$/i);
+          if (isVideo) {
+            mediaHtml = `<video src="${sub.file_url}" controls style="max-width:100%; border-radius:4px; margin-top:10px;"></video>`;
+          } else {
+            mediaHtml = `<a href="${sub.file_url}" target="_blank"><img src="${sub.file_url}" style="max-width:100%; border-radius:4px; margin-top:10px; max-height:200px; object-fit:cover;" /></a>`;
+          }
+        }
+        
+        return `
+          <div class="mentor-submission-item" style="border:1px solid var(--border); padding:1rem; border-radius:8px; margin-bottom:1rem;">
+            <div style="display:flex; justify-content:space-between; margin-bottom:0.5rem;">
+              <strong>${name}</strong>
+              <span class="badge pending">Ожидает проверки</span>
+            </div>
+            <div style="font-size:0.9rem; margin-bottom:0.5rem;">
+              <strong>Урок:</strong> ${sub.lesson_number}<br/>
+              <strong>Логика (для ИИ):</strong> ${escapeHtml(sub.logic_desc || '')}<br/>
+              <strong>С чем столкнулся:</strong> ${escapeHtml(sub.description || '')}
+            </div>
+            ${mediaHtml}
+            <details style="margin-top:10px; font-size:0.9rem;">
+              <summary style="cursor:pointer; font-weight:bold;">Код ученика</summary>
+              <pre style="background:var(--bg); padding:0.5rem; border-radius:4px; margin-top:0.5rem; white-space:pre-wrap; overflow-x:auto;"><code>${escapeHtml(sub.code_text || '')}</code></pre>
+            </details>
+            <div style="margin-top:1rem; display:flex; gap:0.5rem;">
+              <input type="text" id="feedback-${sub.id}" placeholder="Комментарий / Фидбек..." style="flex:1;" />
+              <button class="button success compact" onclick="reviewSubmission('${sub.id}', 'approved')">Одобрить</button>
+              <button class="button danger compact" onclick="reviewSubmission('${sub.id}', 'rejected')">На доработку</button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+  }
+}
+
+window.reviewSubmission = async (subId, status) => {
+  const fb = document.getElementById(`feedback-${subId}`).value;
+  const { error } = await supabaseClient.from('submissions').update({ status, feedback: fb }).eq('id', subId);
+  if (error) {
+    alert('Ошибка при сохранении решения: ' + error.message);
+    return;
+  }
+  renderMentorDashboard();
+};
