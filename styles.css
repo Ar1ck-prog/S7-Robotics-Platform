@@ -1991,3 +1991,7 @@ body.dark-mode .duo-node.active::after {
 
 
 
+
+body.dark-mode .feature-card h3 {
+  color: var(--text-primary);
+}
