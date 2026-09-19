@@ -1508,3 +1508,5 @@ window.reviewSubmission = async (subId, status) => {
   }
   renderMentorDashboard();
 };
+
+initApp();
