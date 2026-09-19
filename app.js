@@ -635,15 +635,35 @@ function initApp() {
   document.getElementById('btnTimerToggle').onclick = togglePomodoro;
   document.getElementById('btnTimerReset').onclick = () => setTimerIdle(getFocusMinutes());
 
-  const sessionId = localStorage.getItem(SESSION_KEY);
-  if (sessionId) {
-    currentUser = state.users.find(u => u.id == sessionId);
-    if (currentUser) {
-      showAppShell();
-      return;
+  if (supabase) {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) {
+        supabase.from('profiles').select('*').eq('id', session.user.id).single().then(({ data: profile }) => {
+          if (profile) {
+            currentUser = { id: session.user.id, ...profile };
+            if (!state.users.find(u => u.id === currentUser.id)) {
+              state.users.push(currentUser);
+            }
+            showAppShell();
+          } else {
+            showLanding();
+          }
+        }).catch(() => showLanding());
+      } else {
+        showLanding();
+      }
+    }).catch(() => showLanding());
+  } else {
+    const sessionId = localStorage.getItem(SESSION_KEY);
+    if (sessionId) {
+      currentUser = state.users.find(u => u.id == sessionId);
+      if (currentUser) {
+        showAppShell();
+        return;
+      }
     }
+    showLanding();
   }
-  showLanding();
 }
 
 function togglePomodoro() {
