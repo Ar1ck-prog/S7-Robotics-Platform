@@ -1,7 +1,7 @@
 const STORAGE_KEY = 's7-platform-mvp-data-v3';
 const supabaseUrl = typeof CONFIG !== 'undefined' ? CONFIG.SUPABASE_URL : '';
 const supabaseKey = typeof CONFIG !== 'undefined' ? CONFIG.SUPABASE_ANON_KEY : '';
-const supabase = (window.supabase && supabaseUrl && supabaseKey) ? window.supabase.createClient(supabaseUrl, supabaseKey) : null;
+const supabaseClient = (window.supabase && supabaseUrl && supabaseKey) ? window.supabase.createClient(supabaseUrl, supabaseKey) : null;
 
 const SESSION_KEY = 's7-platform-session';
 const LANG_KEY = 's7-platform-lang';
@@ -635,10 +635,10 @@ function initApp() {
   document.getElementById('btnTimerToggle').onclick = togglePomodoro;
   document.getElementById('btnTimerReset').onclick = () => setTimerIdle(getFocusMinutes());
 
-  if (supabase) {
-    supabase.auth.getSession().then(({ data: { session } }) => {
+  if (supabaseClient) {
+    supabaseClient.auth.getSession().then(({ data: { session } }) => {
       if (session) {
-        supabase.from('profiles').select('*').eq('id', session.user.id).single().then(({ data: profile }) => {
+        supabaseClient.from('profiles').select('*').eq('id', session.user.id).single().then(({ data: profile }) => {
           if (profile) {
             currentUser = { id: session.user.id, ...profile };
             if (!state.users.find(u => u.id === currentUser.id)) {
@@ -769,7 +769,7 @@ function showAppShell() {
 
 document.getElementById('loginForm').addEventListener('submit', async (e) => {
   e.preventDefault();
-  if (!supabase) return alert('Supabase не настроен в config.js!');
+  if (!supabaseClient) return alert('Supabase не настроен в config.js!');
   
   const fd = new FormData(e.target);
   const email = String(fd.get('email')).trim().toLowerCase();
@@ -782,7 +782,7 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
   btn.innerText = 'Загрузка...';
   errorEl.innerText = '';
   
-  const { data, error } = await supabase.auth.signInWithPassword({
+  const { data, error } = await supabaseClient.auth.signInWithPassword({
     email: email,
     password: pass
   });
@@ -796,11 +796,11 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
   }
   
   if (data.user) {
-    const { data: profile } = await supabase.from('profiles').select('*').eq('id', data.user.id).single();
+    const { data: profile } = await supabaseClient.from('profiles').select('*').eq('id', data.user.id).single();
     if (profile) {
       if (profile.role !== role) {
         errorEl.innerText = 'Неверно выбрана роль (Вы зарегистрированы как ' + profile.role + ')';
-        await supabase.auth.signOut();
+        await supabaseClient.auth.signOut();
         return;
       }
       currentUser = { id: data.user.id, ...profile };
