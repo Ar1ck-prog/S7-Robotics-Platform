@@ -360,10 +360,10 @@ window.onunhandledrejection = function(event) {
           <label>Повторите пароль
             <input name="passwordConfirm" type="password" required minlength="6" placeholder="Повторите пароль" autocomplete="new-password" />
           </label>
-          <label id="mentorCodeField" hidden>Код доступа ментора
-            <input name="mentorCode" type="password" placeholder="Введите код школы" autocomplete="off" />
-            <small>Код выдаёт администратор S7 Robotics.</small>
-          </label>
+          <label id="inviteCodeField">Код доступа
+              <input name="inviteCode" type="password" required placeholder="Код от ментора или админа" autocomplete="off" />
+              <small>Ученикам код выдаёт ментор. Менторам — администратор S7.</small>
+            </label>
           <button class="button primary" type="submit">Создать аккаунт</button>
         </form>
         <p id="authError" class="auth-error" aria-live="polite"></p>
